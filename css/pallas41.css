@@ -63,3 +63,21 @@
      right: 1%;
      display: none;
 }
+
+nav ul li:hover, nav ul li a:hover {
+     font-weight: bold !important;
+     color:#008483 !important;
+}
+
+nav ul li, nav ul li a {
+     margin: 0px 5px;
+     font-size: 20px;
+}
+
+nav ul {
+     display: flex;
+     width: 100%;
+}
+
+li { flex-grow: 1;  }
+

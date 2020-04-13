@@ -76,7 +76,6 @@ function manda_email($end_ema, $asu_ema, $tex_ema, $nom_usu, $anexo_1, $anexo_2)
 
 function gravar_log($ope = 0, $obs = "", $cod = "") {
     date_default_timezone_set("America/Sao_Paulo");
-    include "lerinformacao.inc";    
 
     $ser = substr(getenv("REMOTE_ADDR") . "|" . getenv("HTTP_USER_AGENT") . "|" . getenv("REMOTE_HOST") . "|" . getenv("SERVER_NAME") . "|" . getenv("SERVER_SOFTWARE") ,0,255) ;
 
@@ -95,7 +94,7 @@ function gravar_log($ope = 0, $obs = "", $cod = "") {
     $cam = "";
     $prg = "";
     $tam = 00;
-    $mod = 02;
+    $mod = 01;
     $ext = "";
     $end = buscar_ip($ip);
     $pro = getenv("SERVER_SOFTWARE");
@@ -140,14 +139,11 @@ function gravar_log($ope = 0, $obs = "", $cod = "") {
     $sql .= "'" . $cid . "',";
     $sql .= "'" . $est . "',";
     $sql .= "'" . $obs . "')";
-    $ret = mysqli_query($conexao,$sql);
-    $lin = mysqli_affected_rows($conexao); // Número de linhas afetadas/atualizadas no UpDate
-    $cha = mysqli_insert_id($conexao); // Auto Increment Id 
+    $ret = comando_usu($sql, $nro); 
     if ($ret == false) {
         print_r($sql);
         echo '<script>alert("Erro na gravação de Log de acessos ao sistema !");</script>'; exit();
     } 
-    $ret = desconecta_bco();
 }
 
 function limpa_cpo($string){
@@ -183,11 +179,11 @@ function buscar_ip($ip) {
     $ret = curl_exec($end);
     $dad = json_decode($ret);
     curl_close($end);    
-    $_SESSION['wrkcidusu'] = 'sâo paulo';
-    $_SESSION['wrkestusu'] = 'sp';
+    $_SESSION['wrkcidusu'] = 'uberlãndia';
+    $_SESSION['wrkestusu'] = 'mg';
 if (isset($dad->bogon) == true) {
-        $_SESSION['wrkcidusu'] = 'Sâo Paulo';
-        $_SESSION['wrkestusu'] = 'Sp';
+        $_SESSION['wrkcidusu'] = 'Uberlãndia';
+        $_SESSION['wrkestusu'] = 'Mg';
     }else if (isset($dad->city) == true) {
         $_SESSION['wrkcidusu'] = $dad->city;
         $_SESSION['wrkestusu'] = $dad->region;
@@ -201,8 +197,9 @@ if (isset($dad->bogon) == true) {
 function diferenca_dat($dat_i = "", $dat_f = "") {
 $dia = 0;
 if ($dat_i == "") { $dat_i = date("Y-m-d"); }
-$dat_f = substr($dat_f,6,4) . "-" . substr($dat_f,3,2) . "-" . substr($dat_f,0,2);
-
+if (substr($dat_f, 2, 1) == '-' || substr($dat_f, 2, 1) == '/') {
+    $dat_f = substr($dat_f, 6, 4) . "-" . substr($dat_f, 3, 2) . "-" . substr($dat_f, 0, 2);
+}
 $data1 = new DateTime($dat_i);
 $data2 = new DateTime($dat_f);
 $intervalo = $data1->diff($data2);
@@ -357,5 +354,35 @@ function valida_est($est) {
      }
      return $nom;
  }
- 
+
+function valida_ent($sen,$ema){
+    $nro = 0;
+    $nro += stripos($ema,"'");
+    $nro += stripos($sen,"'");
+    $nro += stripos($ema,"=");
+    $nro += stripos($sen,"=");
+    $nro += stripos($ema,";");
+    $nro += stripos($sen,";");
+    $nro += stripos($ema,"\"");
+    $nro += stripos($sen,"\"");
+    $nro += stripos($ema,"<");
+    $nro += stripos($sen,"<");
+    $nro += stripos($ema,"\/");
+    $nro += stripos($sen,"\/");
+    $nro += stripos($ema,">");
+    $nro += stripos($sen,">");
+    $nro += stripos(strtoupper($ema),"DROP");
+    $nro += stripos(strtoupper($sen),"DROP");
+    $nro += stripos(strtoupper($ema),"UNION");
+    $nro += stripos(strtoupper($sen),"UNION");
+    $nro += stripos(strtoupper($ema),"SELECT");
+    $nro += stripos(strtoupper($sen),"SELECT");
+    $nro += stripos(strtoupper($ema),"DELETE");
+    $nro += stripos(strtoupper($sen),"DELETE");
+    $nro += stripos(strtoupper($ema),"WHERE");
+    $nro += stripos(strtoupper($sen),"WHERE");
+    return $nro;
+}
+
+
 ?>
