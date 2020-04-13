@@ -39,6 +39,11 @@
      border-radius: 0px 20px 0px 20px;
 }
 
+.lit-1 { 
+     font-size: 14px; 
+     color: #FE5625;
+}
+
 .tit-1 {
      font-size: 12px;
      font-weight: bold;
@@ -66,7 +71,7 @@
 
 nav ul li:hover, nav ul li a:hover {
      font-weight: bold !important;
-     color:#008483 !important;
+     color:#FE5625 !important;
 }
 
 nav ul li, nav ul li a {

@@ -24,37 +24,45 @@
           <span class="navbar-toggler-icon"></span>
      </button>
      <a class="navbar-brand" href="menu00.php">
-          <img id="logo-2" src="img/logo-08.jpg">
+          <img id="logo-2" src="img/logo-07.png">
      </a>
      <div class="collapse navbar-collapse align-self-center" id="navbarNav">
           <ul class="navbar-nav mr-auto text-center">
                <li class="nav-item">
-               <a class="nav-link" href="man-usuario.php"><i class="fa fa-users fa-2x" aria-hidden="true"></i><br /> Usuários </a>
+               <a class="nav-link" href="man-empresa.php"><i class="fa fa-cog fa-2x" aria-hidden="true"></i><br /> Parâmetro </a>
                </li>
                <li class="nav-item">
-                    <a class="nav-link" href="man-jobs.php?ope=1&cod=0"> <i class="fa fa-briefcase fa-2x" aria-hidden="true"></i><br /> Jobs </a>
+                    <a class="nav-link" href="man-grupo.php?ope=1&cod=0"> <i class="fa fa-filter fa-2x" aria-hidden="true"></i><br /> Grupos </a>
                </li>
                <li class="nav-item">
-                    <a class="nav-link" href="man-cooperado.php"><i class="fa fa-address-card fa-2x" aria-hidden="true"></i><br /> Cooperados </a>
+                    <a class="nav-link" href="man-local.php"><i class="fa fa-archive fa-2x" aria-hidden="true"></i><br /> Locais </a>
                </li>
                <li class="nav-item">
-                    <a class="nav-link" href="man-alocacao.php"><i class="fa fa-handshake-o fa-2x" aria-hidden="true"></i><br /> Alocações </a>
+                    <a class="nav-link" href="man-transacao.php"><i class="fa fa-arrows-alt fa-2x" aria-hidden="true"></i><br /> Transações </a>
                </li>
                <li class="nav-item">
-                    <a class="nav-link" href="man-valor.php"><i class="fa fa-money fa-2x" aria-hidden="true"></i><br /> Valores </a>
+                    <a class="nav-link" href="con-cliente.php"><i class="fa fa-users fa-2x" aria-hidden="true"></i><br /> Clientes </a>
                </li>
                <li class="nav-item">
-                    <a class="nav-link" href="ger-valor.php"><i class="fa fa-download fa-2x" aria-hidden="true"></i><br /> Download </a>
+                    <a class="nav-link" href="con-produto.php"><i class="fa fa-barcode fa-2x" aria-hidden="true"></i><br /> Produtos </a>
                </li>
                <li class="nav-item">
-                    <a class="nav-link" href="saida.php"><i class="fa fa-sign-out fa-2x" aria-hidden="true"></i><br /> Saída </a>
+                    <a class="nav-link" href="con-movto.php"><i class="fa fa-plane fa-2x" aria-hidden="true"></i><br /> Movimento </a>
+               </li>
+               <li class="nav-item">
+                    <a class="nav-link" href="con-usuario.php"><i class="fa fa-id-badge fa-2x" aria-hidden="true"></i><br /> Usuários </a>
+               </li>
+               <li class="nav-item">
+                    <a class="nav-link" href="log-usuario.php"><i class="fa fa-search fa-2x" aria-hidden="true"></i><br /> Log </a>
                </li>
           </ul>
           <span class="navbar-text text-center">
                <?php 
+                    echo '<div class="lit-1">';
                     echo '<strong>' . $_SESSION['wrknomusu'] . '</strong>' . '<br />';
-                    echo $_SESSION['wrklogusu'] . '<br />';
                     echo date('d/m/Y H:i:s') . '<br />';
+                    echo '<a class="nav-link" href="saida.php"><i class="fa fa-sign-out fa-2x" aria-hidden="true"></i><br /></a>';
+                    echo '</div>';
                ?>
           </span>
      </div>
