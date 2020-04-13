@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mylogbox>
+	<parametro>
+		<banco>access</banco> 
+		<logo_1>img/logo-8.png</logo_1> 
+		<logo_2>img/logo-3.png</logo_2> 
+		<logo_3></logo_3>
+		<ip>127.0.0.1</ip>
+		<porta>8080</porta>
+		<gera_texto>Sim</gera_texto>
+	</parametro>
+</mylogbox>
