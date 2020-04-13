@@ -2,7 +2,7 @@
     	$ser = "127.0.0.1:3306";
 	$usu = "root";
         $pas = "";
-	$bco = "bd_edital";
+	$bco = "bd_mylogbox";
     
     	$conexao = mysqli_connect($ser,$usu,$pas,$bco) or die("Erro ao conectar o banco de dados do sistema -> " . $ser); 
     
