@@ -2,11 +2,17 @@
 
 function ligar_bco(&$err) {
      try {
-          $err = '';
+          $err = ''; $ip  = getenv("REMOTE_ADDR");
           if ( $_SESSION['wrktipban'] == "mysql" ) { 
-               $dsn = 'mysql:host=localhost; dbname=bd_mylogbox'; 
-               $usu = 'root';
-               $pas = '';
+               if ($ip == "127.0.0.1") {
+                    $dsn = 'mysql:host=localhost; dbname=bd_mylogbox'; 
+                    $usu = 'root';
+                    $pas = '';
+               } else {
+                    $dsn = 'mysql:host=localhost; dbname=profsa92_bd_mylogbox'; // Acesso site Profsa
+                    $usu = 'profsa92_profsa';
+                    $pas = 'pallas41';     
+               }
                $pdo = new PDO($dsn, $usu, $pas) or die('Erro na conexão PDO (MySql ) com o banco de dados bd_mylogbox');       
           }   
           if ( $_SESSION['wrktipban'] == "access" ) { 
@@ -35,6 +41,9 @@ function usuario_log($tip, $ema, $sen, &$reg) {
      $qtd = 0; 
      $reg = array();
      $con_bco = ligar_bco($erro);
+     if ($erro != "") {
+          echo '<script>alert("Erro -> ' . $erro . ' !");</script>';
+     }
      $sen = base64_encode($sen);
      if ($tip == 1) {
           $com = "Select * from tb_usuario where usuemail = '" . $ema . "'";
@@ -63,13 +72,57 @@ function qtd_registros($emp, $tab) {
      return $qtd;
 }
 
-function comando_usu($com, &$nro) {
-     $ret = 0; $nro = 0;
+function comando_tab($com, &$nro, &$men) {
+try {
+     $ret = 0; $nro = 0; $men = "";
      $con_bco = ligar_bco($erro);
      $sql = $con_bco->prepare($com);
      $ret = $sql->execute();  // True -> OK
      $nro = $sql->rowCount();
      return $ret;
+}
+catch (PDOException $erro) {
+          $men = $erro->getMessage();
+     }
+     catch (Exception $erro) {
+          $men = $erro->getMessage();
+     }
+}
+
+function quantidade_reg($com, &$men, &$reg) {
+try {
+     $nro = 0; $men = ""; 
+     $con_bco = ligar_bco($erro);
+     $sql = $con_bco->prepare($com);
+     $sql->execute();
+     $reg = $sql->fetch(PDO::FETCH_ASSOC);
+     $nro = $sql->rowCount();
+     return $nro;
+}
+     catch (PDOException $erro) {
+          $men = $erro->getMessage();
+     }
+     catch (Exception $erro) {
+          $men = $erro->getMessage();
+     }
+}
+
+function carrega_reg($com, &$reg) {
+     $con_bco = ligar_bco($erro);
+	$sql = $con_bco->prepare($com);
+     $sql->execute();
+     $reg = $sql->fetch(PDO::FETCH_ASSOC);
+     $nro = $sql->rowCount();
+     return $nro;
+}
+
+function carrega_tab($com, &$reg) {
+     $con_bco = ligar_bco($erro);
+	$sql = $con_bco->prepare($com);
+     $sql->execute();
+     $reg = $sql->fetchAll();
+     $nro = $sql->rowCount();
+     return $nro;
 }
 
 ?>

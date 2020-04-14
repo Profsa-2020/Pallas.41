@@ -60,8 +60,6 @@ $(document).ready(function() {
           exit('<script>location.href = "login.php"</script>');   
      } elseif (isset($_SESSION['wrktipban']) == false) {
           exit('<script>location.href = "login.php"</script>');   
-     } elseif (isset($_SESSION['wrklogusu']) == false) {
-          exit('<script>location.href = "login.php"</script>');   
      } elseif ($_SESSION['wrknomusu'] == "") {
           exit('<script>location.href = "login.php"</script>');   
      } elseif ($_SESSION['wrknomusu'] == "*") {

@@ -43,7 +43,7 @@
      $lem = (isset($_REQUEST['lembrete']) == false ? 0 : $_REQUEST['lembrete']);
      $ret = verifica_ace($ret); 
      if (isset($_POST['entrar']))  {
-          $nro = valida_ent($sen,$ema);
+          $nro = valida_ent($sen, $ema);
           if (trim($ema) == "") {
                $err_n = 1; $err_d = 'E-mail para efetuar Login no sistema não pode estar em branco !';
           } else if (trim($sen) == "") {
@@ -88,7 +88,7 @@
                          $_SESSION['wrknumace'] = $reg['usuacessos'];                 
                          if ($_SESSION['wrknumace'] >= 2) {
                               $com = "Update tb_usuario set usuacessos = " . ($_SESSION['wrknumace'] - 1) . " where idsenha = " . $_SESSION['wrkideusu'];
-                              $ret = comando_usu($com, $nro); 
+                              $ret = comando_tab($com, $nro, $men); 
                          }
                          $ret = gravar_log(5,"Entrada para acesso ao sistema Pallas.41 - Menu.01 - MyLogBox do Brasil");  
                          exit('<script>location.href = "menu01.php"</script>');
@@ -106,7 +106,7 @@
                     <br /><br />
                     <div class="row">
                          <a href="http://www.mylogbox.com/">
-                              <img src="img/logo-05.jpg" alt="Logotipo da empresa MyLogBox"
+                              <img class="img-fluid" src="img/logo-05.jpg" alt="Logotipo da empresa MyLogBox"
                                    title="Acesso ao site principal da empresa MyLogBox" />
                          </a>
                     </div>

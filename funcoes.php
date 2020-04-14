@@ -5,7 +5,7 @@ function envia_email($end_ema, $asu_ema, $tex_env, $nom_usu){
     if ($asu_ema == "") {
         $asu_ema ="Re-envio de login e senha a usuário do sistema !";
     }
-    $headers  = 'From: comercial@medicamentos-importados.com' . "\r\n";
+    $headers  = 'From: comercial@mylogbox.com' . "\r\n";
     $headers .= 'MIME-Version: 1.0' . "\r\n";
     $headers .= 'Content-type: text/html; charset=UTF-8' . "\r\n";
     $envio = mail($end_ema, $asu_ema, $tex_env, $headers);
@@ -139,7 +139,7 @@ function gravar_log($ope = 0, $obs = "", $cod = "") {
     $sql .= "'" . $cid . "',";
     $sql .= "'" . $est . "',";
     $sql .= "'" . $obs . "')";
-    $ret = comando_usu($sql, $nro); 
+    $ret = comando_tab($sql, $nro, $men); 
     if ($ret == false) {
         print_r($sql);
         echo '<script>alert("Erro na gravação de Log de acessos ao sistema !");</script>'; exit();

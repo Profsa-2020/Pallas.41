@@ -8,8 +8,6 @@
           exit('<script>location.href = "login.php"</script>');   
      } elseif (isset($_SESSION['wrktipban']) == false) {
           exit('<script>location.href = "login.php"</script>');   
-     } elseif (isset($_SESSION['wrklogusu']) == false) {
-          exit('<script>location.href = "login.php"</script>');   
      } elseif ($_SESSION['wrknomusu'] == "") {
           exit('<script>location.href = "login.php"</script>');   
      } elseif ($_SESSION['wrknomusu'] == "*") {
@@ -23,7 +21,7 @@
           aria-controls="navbarNav" aria-expanded="false" aria-label="Alterna navegação do menu principal">
           <span class="navbar-toggler-icon"></span>
      </button>
-     <a class="navbar-brand" href="menu00.php">
+     <a class="navbar-brand" href="menu01.php">
           <img id="logo-2" src="img/logo-07.png">
      </a>
      <div class="collapse navbar-collapse align-self-center" id="navbarNav">
