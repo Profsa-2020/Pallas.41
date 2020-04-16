@@ -2,6 +2,9 @@
 
 function ligar_bco(&$err) {
      try {
+          if (isset($_SESSION['wrktipban']) == false) {
+               exit('<script>location.href = "login.php"</script>');                       
+          }
           $err = ''; $ip  = getenv("REMOTE_ADDR");
           if ( $_SESSION['wrktipban'] == "mysql" ) { 
                if ($ip == "127.0.0.1") {
@@ -72,13 +75,14 @@ function qtd_registros($emp, $tab) {
      return $qtd;
 }
 
-function comando_tab($com, &$nro, &$men) {
+function comando_tab($com, &$nro, &$ult, &$men) {
 try {
      $ret = 0; $nro = 0; $men = "";
      $con_bco = ligar_bco($erro);
      $sql = $con_bco->prepare($com);
      $ret = $sql->execute();  // True -> OK
      $nro = $sql->rowCount();
+     $ult = $con_bco->lastInsertId();
      return $ret;
 }
 catch (PDOException $erro) {
@@ -117,12 +121,20 @@ function carrega_reg($com, &$reg) {
 }
 
 function carrega_tab($com, &$reg) {
+try {
      $con_bco = ligar_bco($erro);
 	$sql = $con_bco->prepare($com);
      $sql->execute();
      $reg = $sql->fetchAll();
      $nro = $sql->rowCount();
      return $nro;
+}
+     catch (PDOException $erro) {
+          $men = $erro->getMessage();
+     }
+     catch (Exception $erro) {
+          $men = $erro->getMessage();
+     }
 }
 
 ?>

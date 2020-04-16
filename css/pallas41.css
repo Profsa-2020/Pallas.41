@@ -66,13 +66,13 @@
      color: #918e8e;
 }
 
-.qua-0 input[type=text], .qua-0 input[type=email] {
+.qua-0 input[type=text], .qua-0 input[type=email], .qua-0 select option {
      font-size: 14px;
      padding: 2px 10px;
      color: #676a6c;
  }
 
- .qua-0 input[type=text]:hover, .qua-0 input[type=email]:hover {
+ .qua-0 input[type=text]:hover, .qua-0 input[type=email]:hover, .qua-0 select option:hover {
      font-weight: bold;
  }
 
@@ -84,6 +84,13 @@
      font-size: 32px;
      font-weight: 300;
      background-color: #F8F9FA;
+}
+
+.qua-3 {
+     padding: 10px 5px;
+     margin: 10px 5px;
+     background-color:#F8F9FA;     
+     border: 0.5px solid rgb(209, 209, 211);
 }
 
 .tab-1 {

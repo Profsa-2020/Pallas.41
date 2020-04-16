@@ -293,7 +293,7 @@ function incluir_loc() {
      $sql .= "'" . '' . "',";
      $sql .= "'" . $_SESSION['wrkideusu'] . "',";
      $sql .= "'" . date("Y/m/d H:i:s") . "')";
-     $ret = comando_tab($sql, $nro, $men);
+     $ret = comando_tab($sql, $nro, $ult, $men);
      if ($ret == false) {
           print_r($sql);
           echo '<script>alert("Erro na gravação do registro solicitado !");</script>';
@@ -324,7 +324,7 @@ function ler_local(&$cha, &$des, &$sta) {
      $sql .= "keyalt = '" . $_SESSION['wrkideusu'] . "', ";
      $sql .= "datalt = '" . date("Y/m/d H:i:s") . "' ";
      $sql .= "where idgrupo = " . $_SESSION['wrkcodreg'];
-     $ret = comando_tab($sql, $nro, $men);
+     $ret = comando_tab($sql, $nro, $ult, $men);
      if ($ret == false) {
           print_r($sql);
           echo '<script>alert("Erro na regravação do registro solicitado !");</script>';
@@ -336,7 +336,7 @@ function ler_local(&$cha, &$des, &$sta) {
      $ret = 0;
      include_once "dados.php";
      $sql  = "delete from tb_grupo where idgrupo = " . $_SESSION['wrkcodreg'] ;
-     $ret = comando_tab($sql, $nro, $men);
+     $ret = comando_tab($sql, $nro, $ult, $men);
      if ($ret == false) {
           print_r($sql);
           echo '<script>alert("Erro na exclusão do registro solicitado !");</script>';

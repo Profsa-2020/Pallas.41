@@ -486,7 +486,7 @@ function incluir_emp() {
      $sql .= "'" . $_REQUEST['sit'] . "',";
      $sql .= "'" . $_SESSION['wrkideusu'] . "',";
      $sql .= "'" . date("Y/m/d H:i:s") . "')";
-     $ret = comando_tab($sql, $nro, $men);
+     $ret = comando_tab($sql, $nro, $ult, $men);
      // $_SESSION['wrkcodreg'] = mysqli_insert_id($conexao); // Auto Increment Id
      if ($ret == true) {
           echo '<script>alert("Registro incluído no sistema com Sucesso !");</script>';
@@ -521,7 +521,7 @@ function incluir_emp() {
      $sql .= "keyalt = '" . $_SESSION['wrkideusu'] . "', ";
      $sql .= "datalt = '" . date("Y/m/d H:i:s") . "' ";
      $sql .= "where idempresa = " . $_SESSION['wrkcodreg'];
-     $ret = comando_tab($sql, $nro, $men);
+     $ret = comando_tab($sql, $nro, $ult, $men);
      if ($ret == true) {
           echo '<script>alert("Registro alterado no sistema com Sucesso !");</script>';
      }else{

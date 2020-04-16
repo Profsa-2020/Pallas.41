@@ -60,6 +60,7 @@ $(document).ready(function() {
      $dad = array();
      include_once "dados.php";
      include_once "funcoes.php";
+     $_SESSION['wrknumvol'] = 1;
      $_SESSION['wrknompro'] = __FILE__;
      date_default_timezone_set("America/Sao_Paulo");
      $_SESSION['wrkdatide'] = date ("d/m/Y H:i:s", getlastmod());

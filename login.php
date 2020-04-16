@@ -88,7 +88,7 @@
                          $_SESSION['wrknumace'] = $reg['usuacessos'];                 
                          if ($_SESSION['wrknumace'] >= 2) {
                               $com = "Update tb_usuario set usuacessos = " . ($_SESSION['wrknumace'] - 1) . " where idsenha = " . $_SESSION['wrkideusu'];
-                              $ret = comando_tab($com, $nro, $men); 
+                              $ret = comando_tab($com, $nro, $ult, $men); 
                          }
                          $ret = gravar_log(5,"Entrada para acesso ao sistema Pallas.41 - Menu.01 - MyLogBox do Brasil");  
                          exit('<script>location.href = "menu01.php"</script>');

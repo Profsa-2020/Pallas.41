@@ -139,7 +139,7 @@ function gravar_log($ope = 0, $obs = "", $cod = "") {
     $sql .= "'" . $cid . "',";
     $sql .= "'" . $est . "',";
     $sql .= "'" . $obs . "')";
-    $ret = comando_tab($sql, $nro, $men); 
+    $ret = comando_tab($sql, $nro, $ult, $men); 
     if ($ret == false) {
         print_r($sql);
         echo '<script>alert("Erro na gravação de Log de acessos ao sistema !");</script>'; exit();
@@ -163,9 +163,11 @@ $tmm = strlen($mas);
 if ($tmm == 0) { $tmm = $tmc; }
 for ($ind = 0; $ind < $tmm; $ind++) {
     if (trim($mas[$ind]) == "") {
-        $ret = $ret . $cpo[$nro];
-        $nro = $nro + 1;
-    }else{
+        if (isset($cpo[$nro]) == true) {
+            $ret = $ret . $cpo[$nro];
+            $nro = $nro + 1;
+        }
+    } else {
         $ret = $ret . $mas[$ind];
     }
 }
@@ -328,10 +330,10 @@ function valida_est($est) {
  }
  
  function valida_cpf ($cpf) {
-     $sta = 0;
-     $som = 0;
+     $sta = 0; $som = 0;
+     if ($cpf == '0') { return 0; }
      $cpf = preg_replace('/[^0-9]/','',$cpf);  // Troca não numeros por branco.
-     for ($ind=0, $nro=10; $ind <= 8 ; $ind++, $nro--) {
+     for ($ind = 0, $nro = 10; $ind <= 8 ; $ind++, $nro--) {
          $som = $som + $cpf[$ind] * $nro;
      }
      $res1 = 11 - $som % 11;

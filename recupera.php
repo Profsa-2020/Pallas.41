@@ -62,10 +62,10 @@ $_SESSION['wrknompro'] = __FILE__;
 date_default_timezone_set("America/Sao_Paulo");
 if (isset($_REQUEST['enviar']) == true) {
     $sta = verifica_usu($_REQUEST['email']);
-    if ($sta == 2 || $ret == 2) {
-        // echo '<script>alert("Existe mais de um usuário cadastrado com o mesmo e-mail !");</script>';
-    }elseif ($sta != 1 && $ret != 1) {
-        // echo '<script>alert("E-Mail informado não cadastrado em nosso banco de dados !");</script>';
+    if ($sta == 2) {
+        echo '<script>alert("Existe mais de um usuário cadastrado com o mesmo e-mail !");</script>';
+    }elseif ($sta == 3) {
+        echo '<script>alert("E-Mail informado não cadastrado em nosso banco de dados !");</script>';
     }else{
         if ($sta == 1) {
             $ret = enviar_usu($_REQUEST['email']);
@@ -79,7 +79,7 @@ if (isset($_REQUEST['enviar']) == true) {
 <body class="login">
 <h1 class="cab-0">Login Inicial Sistema MyLogBox - Controle de Estoques - Profsa Informática</h1>
      <div class="entrada">
-          <div class="qua-1 animated bounceInDown">
+          <div class="qua-1 animated bounceInUp">
                <form id="frmRecupera" name="frmRecupera" action="" method="POST">
                     <br /><br />
                     <div class="row">
@@ -112,11 +112,11 @@ if (isset($_REQUEST['enviar']) == true) {
 
 <?php
         function verifica_usu($end) {
-            include "lerinformacao.inc";
-            $sql = mysqli_query($conexao,"Select idsenha from tb_usuario where usuemail = '$end'");
-            if (mysqli_num_rows($sql) == 1) {
+            include_once "dados.php";
+            $nro = quantidade_reg("Select * from tb_usuario where usuemail = '" . $end . "'", $men, $reg);     
+            if ($nro == 1) {
                 return 1;
-            }elseif (mysqli_num_rows($sql) >= 2) {
+            }elseif ($nro >= 2) {
                 return 2;
             }
             return 3;
@@ -124,25 +124,23 @@ if (isset($_REQUEST['enviar']) == true) {
 
         function enviar_usu($end) {
             $sta = 0;
-            include "lerinformacao.inc";
-            $sql = mysqli_query($conexao,"Select * from tb_usuario where usuemail = '$end'");
-            if (mysqli_num_rows($sql) > 0) {
-                $linha = mysqli_fetch_array($sql);
-                $nom = $linha['usunome'];
-                $ema = $linha['usuemail'];
-                $sen  = $linha['ususenha'];
-                $pas = base64_decode($linha['ususenha']);
-
+            include_once "dados.php";
+            $nro = quantidade_reg("Select * from tb_usuario where usuemail = '" . $end . "'", $men, $reg);     
+            if ($nro == 1 || $reg == true) {
+                $nom = $reg['usunome'];
+                $ema = $reg['usuemail'];
+                $sen  = $reg['ususenha'];
+                $pas = base64_decode($reg['ususenha']);
                 $tex  = '<!DOCTYPE html>';
                 $tex .= '<html lang="pt_br">';
                 $tex .= '<head>';
                 $tex .= '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />';
                 $tex .= '<title>MyLogBox do Brasil - Gerenciamento de Compras nos EUA</title>';
                 $tex .= '</head>';
-                $tex .= '<body>';
+                $tex .= '<body>'; 
                 $tex .= '<a href="http://www.mylogbox.com/login.php">';
                 $tex .= '<p align="center">';
-                $tex .= '<img border="0" src="http://www.mylogbox.com/img/logo-02.jpg"></p></a>';
+                $tex .= '<img border="0" src="http://www.mylogbox.com/pallas41/img/logo-05.jpg"></p>';
                 $tex .= '<p align="center">&nbsp;</p>';
                 $tex .= '<p align="center"><font size="5" face="Verdana" color="#FF0000"><b>Recuperação de Senha de Usuário</b></font></p>';
                 $tex .= '<p align="center">&nbsp;</p>';

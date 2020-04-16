@@ -38,7 +38,7 @@
      <script type="text/javascript" src="js/jquery.mask.min.js"></script>
 
      <link href="css/pallas41.css" rel="stylesheet" type="text/css" media="screen" />
-     <title>MyLogBox - Controle de Estoques de compras de clientes nos EUA - Parâmetros</title>
+     <title>MyLogBox - Controle de Estoques de compras de clientes nos EUA - Usuários</title>
 </head>
 
 <script>
@@ -135,7 +135,7 @@ $(document).ready(function() {
 ?>
 
 <body>
-     <h1 class="cab-0">MyLogBox - Manutenção Parâmetros  - Controle de Estoques - Profsa Informática</h1>
+     <h1 class="cab-0">MyLogBox - Manutenção Usuários  - Controle de Estoques - Profsa Informática</h1>
      <div class="row">
           <div class="col-md-12">
                <?php include_once "cabecalho-1.php"; ?>
@@ -346,7 +346,7 @@ function ultimo_cod() {
      $sql .= "'" . ($val == "--" ? date('Y-m-d', strtotime('+180 days')) : $val) . "',";
      $sql .= "'" . $_SESSION['wrkideusu'] . "',";
      $sql .= "'" . date("Y/m/d H:i:s") . "')";
-     $ret = comando_tab($sql, $nro, $men);
+     $ret = comando_tab($sql, $nro, $ult, $men);
      if ($ret == true) {
           echo '<script>alert("Registro incluído no sistema com Sucesso !");</script>';
      }else{
@@ -372,7 +372,7 @@ function alterar_usu() {
      $sql .= "keyalt = '" . $_SESSION['wrkideusu'] . "', ";
      $sql .= "datalt = '" . date("Y/m/d H:i:s") . "' ";
      $sql .= "where idsenha = " . $_SESSION['wrkcodreg'];
-     $ret = comando_tab($sql, $nro, $men);
+     $ret = comando_tab($sql, $nro, $ult, $men);
      if ($ret == true) {
           echo '<script>alert("Registro alterado no sistema com Sucesso !");</script>';
      }else{
@@ -386,7 +386,7 @@ function alterar_usu() {
      $ret = 0;
      include_once "dados.php";
      $sql  = "delete from tb_usuario where idsenha = " . $_SESSION['wrkcodreg'] ;
-     $ret = comando_tab($sql, $nro, $men);
+     $ret = comando_tab($sql, $nro, $ult, $men);
      if ($ret == true) {
           echo '<script>alert("Registro excluído no sistema com Sucesso !");</script>';
      }else{

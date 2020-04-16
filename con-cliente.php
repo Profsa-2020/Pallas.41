@@ -89,6 +89,7 @@ $(document).ready(function() {
      $dad = array();
      include_once "dados.php";
      include_once "funcoes.php";
+     $_SESSION['wrknumvol'] = 1;
      $_SESSION['wrknompro'] = __FILE__;
      date_default_timezone_set("America/Sao_Paulo");
      $_SESSION['wrkdatide'] = date ("d/m/Y H:i:s", getlastmod());
@@ -169,21 +170,22 @@ function carrega_cli() {
      $nro = carrega_tab($com, $reg);
      foreach ($reg as $lin) {
          $txt =  '<tr>';
-         $txt .= '<td class="bot-3 text-center"><a href="man-cliente.php?ope=2&cod=' . $lin['idsenha'] . '" title="Efetua alteração do registro informado na linha"><i class="large material-icons">healing</i></a></td>';
-         $txt .= '<td class="lit-d bot-3 text-center"><a href="man-cliente.php?ope=3&cod=' . $lin['idsenha'] . '" title="Efetua exclusão do registro informado na linha"><i class="large material-icons">delete_forever</i></a></td>';
-         $txt .= '<td class="lit-d bot-3 text-center"><a href="man-cliente.php?ope=4&cod=' . $lin['idsenha'] . '" title="Efetua demonstração de endereços do cliente informado na linha"><i class="large material-icons">location_on</i></a></td>';
-         $txt .= '<td class="text-center">' . $lin['idsenha'] . '</td>';
+         $txt .= '<td class="bot-3 text-center"><a href="man-cliente.php?ope=2&cod=' . $lin['idcliente'] . '" title="Efetua alteração do registro informado na linha"><i class="large material-icons">healing</i></a></td>';
+         $txt .= '<td class="lit-d bot-3 text-center"><a href="man-cliente.php?ope=3&cod=' . $lin['idcliente'] . '" title="Efetua exclusão do registro informado na linha"><i class="large material-icons">delete_forever</i></a></td>';
+         $txt .= '<td class="lit-d bot-3 text-center"><a href="man-cliente.php?ope=4&cod=' . $lin['idcliente'] . '" title="Efetua demonstração de endereços do cliente informado na linha"><i class="large material-icons">location_on</i></a></td>';
+         $txt .= '<td class="text-center">' . $lin['idcliente'] . '</td>';
          $txt .= "<td>" . $lin['clinome'] . "</td>";
          if ($lin['clistatus'] == 0) {$txt .= "<td>" . "Normal" . "</td>";}
          if ($lin['clistatus'] == 1) {$txt .= "<td>" . "Bloqueado" . "</td>";}
          if ($lin['clistatus'] == 2) {$txt .= "<td>" . "Suspenso" . "</td>";}
          if ($lin['clistatus'] == 3) {$txt .= "<td>" . "Cancelado" . "</td>";}
          $txt .= "<td>" . $lin['cliemail'] . "</td>";
-         $txt .= "<td>" . $lin['clicpf'] . "</td>";
+         $txt .= "<td>" . mascara_cpo($lin['clicpf'], '   .   .   -  ') . "</td>";
          $txt .= "<td>" . $lin['clitelefone'] . "</td>";
          $txt .= "<td>" . $lin['clicelular'] . "</td>";
          $txt .= "<td>" . $lin['cliendereco'] . ', ' . $lin['clinumero'] . ' ' . $lin['clicomplemento'] . "</td>";
          $txt .= "<td>" . $lin['clibairro'] . "</td>";
+         $txt .= "<td>" . $lin['clicidade'] . "</td>";
          $txt .= "<td>" . $lin['cliestado'] . "</td>";
          $txt .= "</tr>";
          echo $txt;
