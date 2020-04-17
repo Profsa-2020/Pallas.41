@@ -15,7 +15,7 @@
 
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.css">
 
-     <link rel="shortcut icon" href="http://www.mylogbox.com/pallas41/img/logo-03.png" />
+     <link rel="shortcut icon" href="https://www.mylogbox.com/pallas41/img/logo-03.png" />
 
      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
@@ -67,6 +67,8 @@ $(document).ready(function() {
      } elseif ($_SESSION['wrknomusu'] == "#") {
           exit('<script>location.href = "login.php"</script>');   
      }  
+     $tab = array();
+     $ret = carrega_dash($tab);
 
 ?>
 
@@ -77,6 +79,7 @@ $(document).ready(function() {
                <?php include_once "cabecalho-1.php"; ?>
           </div>
      </div>
+     <br />
      <div class="container-fluid">
           <div class="row text-center">
                <div class="col-md-12">
@@ -86,7 +89,77 @@ $(document).ready(function() {
           </div>
      </div>
 
+     <br />
+     <div class="row">
+          <div class="col-md-1"></div>
+          <div class="qua-4 col-md-2 text-center">
+               <i class="fa fa-filter fa-1g" aria-hidden="true"></i><br /><span> Grupos </span><br />
+               <span><?php echo number_format($tab['gru'], 0, ",", "."); ?></span>
+          </div>
+          <div class="qua-4 col-md-2 text-center">
+               <i class="fa fa-archive fa-1g" aria-hidden="true"></i><br /><span> Locais </span><br />
+               <span><?php echo number_format($tab['loc'], 0, ",", "."); ?></span>
+          </div>
+          <div class="qua-4 col-md-2 text-center">
+               <i class="fa fa-id-badge fa-1g" aria-hidden="true"></i><br /><span> Usuários </span><br />
+               <span><?php echo number_format($tab['usu'], 0, ",", "."); ?></span>
+          </div>
+          <div class="qua-4 col-md-2 text-center">
+               <i class="fa fa-users fa-1g" aria-hidden="true"></i><br /><span> Clientes </span><br />
+               <span><?php echo number_format($tab['cli'], 0, ",", "."); ?></span>
+          </div>
+          <div class="qua-4 col-md-2 text-center">
+               <i class="fa fa-barcode fa-1g" aria-hidden="true"></i><br /><span> Produtos </span><br />
+               <span><?php echo number_format($tab['pro'], 0, ",", "."); ?></span>
+          </div>
+          <div class="col-md-1"></div>
+     </div>
+     <br />
+     <hr /><br />
+
      <div id="box10">
           <img class="subir" src="img/subir.png" title="Volta a página para o seu topo." />
      </div>
 </body>
+
+<?php
+function carrega_dash(&$tab) {
+     $sta = 0;
+     $tab['usu'] = 0;
+     $tab['cli'] = 0;
+     $tab['pro'] = 0;
+     $tab['gru'] = 0;
+     $tab['loc'] = 0;
+     include_once "dados.php";
+     $com = "Select count(*) as qtdlinhas from tb_usuario";
+     $nro = carrega_tab($com, $reg);
+     foreach ($reg as $lin) {
+          $tab['usu'] = $lin['qtdlinhas'];
+     }
+     $com = "Select count(*) as qtdlinhas from tb_cliente where cliempresa = " . $_SESSION['wrkcodemp'];
+     $nro = carrega_tab($com, $reg);
+     foreach ($reg as $lin) {
+          $tab['cli'] = $lin['qtdlinhas'];
+     }
+     $com = "Select count(*) as qtdlinhas from tb_produto where proempresa = " . $_SESSION['wrkcodemp'];
+     $nro = carrega_tab($com, $reg);
+     foreach ($reg as $lin) {
+          $tab['pro'] = $lin['qtdlinhas'];
+     }
+     $com = "Select count(*) as qtdlinhas from tb_grupo where grutiporeg = 1 and gruempresa = " . $_SESSION['wrkcodemp'];
+     $nro = carrega_tab($com, $reg);
+     foreach ($reg as $lin) {
+          $tab['gru'] = $lin['qtdlinhas'];
+     }
+     $com = "Select count(*) as qtdlinhas from tb_grupo where grutiporeg = 2 and gruempresa = " . $_SESSION['wrkcodemp'];
+     $nro = carrega_tab($com, $reg);
+     foreach ($reg as $lin) {
+          $tab['loc'] = $lin['qtdlinhas'];
+     }
+
+     return $sta;
+ }
+
+?>
+
+</html>

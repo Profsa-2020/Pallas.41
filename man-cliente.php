@@ -15,7 +15,7 @@
 
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.css">
 
-     <link rel="shortcut icon" href="http://www.mylogbox.com/pallas41/img/logo-03.png" />
+     <link rel="shortcut icon" href="https://www.mylogbox.com/pallas41/img/logo-03.png" />
 
      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
@@ -38,12 +38,10 @@
      <script type="text/javascript" src="js/jquery.mask.min.js"></script>
 
      <link href="css/pallas41.css" rel="stylesheet" type="text/css" media="screen" />
-     <title>MyLogBox - Controle de Estoques de compras de clientes nos EUA - Parâmetros</title>
+     <title>MyLogBox - Controle de Estoques de compras de clientes nos EUA - Clientes</title>
 </head>
 
 <script>
-
-
 $(function() {
      $(".cep").mask("00000-000");
      $(".num").mask("000.000");     
@@ -229,18 +227,13 @@ $(document).ready(function() {
      include_once "funcoes.php";
      $_SESSION['wrknompro'] = __FILE__;
 
-     if ( $_SESSION['wrktipusu'] <= 3) {
-          echo '<script>alert("Nível de usuário não permite acesso a essa opção");</script>';
-          echo '<script>history.go(-1);</script>';
-     }
-
      date_default_timezone_set("America/Sao_Paulo");
      $_SESSION['wrkdatide'] = date ("d/m/Y H:i:s", getlastmod());
      $_SESSION['wrknomide'] = get_current_user();
      if (isset($_SERVER['HTTP_REFERER']) == true) {
           if (limpa_pro($_SESSION['wrknompro']) != limpa_pro($_SERVER['HTTP_REFERER'])) {
                $_SESSION['wrkproant'] = limpa_pro($_SERVER['HTTP_REFERER']);
-               $ret = gravar_log(6,"Entrada na página de manutenção de clientes do sistema Pallas.41 - E-dital Assessoria");  
+               $ret = gravar_log(6,"Entrada na página de manutenção de clientes do sistema Pallas.41 - MyLogBox do Brasil");  
           }
      }
      if (isset($_SESSION['wrkopereg']) == false) { $_SESSION['wrkopereg'] = 0; }
@@ -502,6 +495,7 @@ $(document).ready(function() {
           </div>
           <br />
 </body>
+
 <?php
 function ultimo_cod() {
      $cod = 1;
@@ -791,6 +785,7 @@ function incluir_cli() {
      $sql .= "cliregistro = '". $_REQUEST['reg'] . "', ";
      $sql .= "clicpf = '". limpa_nro($_REQUEST['cpf']) . "', ";
      $sql .= "cliobservacao = '". str_replace("'", "´", $_REQUEST['obs']) . "', ";
+     $sql .= "clititulo = '". $_REQUEST['tit'][0] . "', ";
      $sql .= "clicep = '". limpa_nro($_REQUEST['cep'][0]) . "', ";
      $sql .= "cliendereco = '". $_REQUEST['end'][0] . "', ";
      $sql .= "clinumero = '". limpa_nro($_REQUEST['num'][0]) . "', ";

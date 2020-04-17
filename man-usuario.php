@@ -73,7 +73,7 @@ $(document).ready(function() {
      if (isset($_SERVER['HTTP_REFERER']) == true) {
           if (limpa_pro($_SESSION['wrknompro']) != limpa_pro($_SERVER['HTTP_REFERER'])) {
                $_SESSION['wrkproant'] = limpa_pro($_SERVER['HTTP_REFERER']);
-               $ret = gravar_log(6,"Entrada na página de manutenção de usuários do sistema Pallas.41 - E-dital Assessoria");  
+               $ret = gravar_log(6,"Entrada na página de manutenção de usuários do sistema Pallas.41 - MyLogBox do Brasil");  
           }
      }
      if (isset($_SESSION['wrkopereg']) == false) { $_SESSION['wrkopereg'] = 0; }

@@ -113,7 +113,7 @@ $(document).ready(function() {
      if (isset($_SERVER['HTTP_REFERER']) == true) {
           if (limpa_pro($_SESSION['wrknompro']) != limpa_pro($_SERVER['HTTP_REFERER'])) {
                $_SESSION['wrkproant'] = limpa_pro($_SERVER['HTTP_REFERER']);
-               $ret = gravar_log(6,"Entrada na página de log de acesso de usuários do sistema Pallas.38 - E-dital Assessoria");  
+               $ret = gravar_log(6,"Entrada na página de log de acesso de usuários do sistema Pallas.38 - MyLogBox do Brasil");  
           }
      }
      $hoj = date('d/m/Y'); $_SESSION['wrkmostel'] = 0;
@@ -142,7 +142,7 @@ $(document).ready(function() {
 ?>
 
 <body id="box00">
-     <h1 class="cab-0">Menu Inicial E-dital Assessoria - Gerenciamento de Licitações - Profsa Informática</h1>
+     <h1 class="cab-0">Menu Inicial MyLogBox do Brasil - Gerenciamento de Licitações - Profsa Informática</h1>
      <div class="row">
           <div class="col-md-12">
                <?php include_once "cabecalho-1.php"; ?>

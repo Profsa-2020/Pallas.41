@@ -45,9 +45,25 @@
      background-color: transparent;
  }
 
+ 
+.bot-4 { visibility: hidden; }
+
+.cor-1 {color: rgb(253, 5, 5); }
+.cor-2 {color: rgb(9, 5, 253); }
+.cor-3 {color: rgb(202, 199, 199); }
+ 
 .lit-1 { 
      font-size: 14px; 
      color: #FE5625;
+}
+
+.lit-2 {
+     color: #dadada;
+     height: 35px;
+     font-size: 18px;
+     font-weight: bold;
+     background-color:#00A0B8;
+     border-radius: 0px 10px 0px 10px;
 }
 
 .ima-1 {
@@ -92,6 +108,15 @@
      background-color:#F8F9FA;     
      border: 0.5px solid rgb(209, 209, 211);
 }
+
+.qua-4 {
+     margin: 0px 5px;
+     color: #dad8d8;
+     border-radius: 0px 15px 0px 15px;
+     font-size: 20px;
+     font-weight: bold;
+     background-color: #009FB7;
+ }
 
 .tab-1 {
      font-size: 12px;

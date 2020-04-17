@@ -15,7 +15,7 @@
 
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.css">
 
-     <link rel="shortcut icon" href="http://www.mylogbox.com/pallas41/img/logo-03.png" />
+     <link rel="shortcut icon" href="https://www.mylogbox.com/pallas41/img/logo-03.png" />
 
      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 

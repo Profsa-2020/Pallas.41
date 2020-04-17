@@ -43,20 +43,6 @@
 
 <script>
 $(document).ready(function() {
-     $(".item").click(function() {
-          var cod = $(this).attr("cod");
-          $.getJSON("carrega-end.php", { cod: cod })
-          .done(function(data) {
-               if (data.msg != "") {
-                    alert(data.msg);
-               } else {
-                    $('#dad_end').empty().html(data.txt);
-                    $('#lis-end').modal('show');                         }
-          }).fail(function(data){
-               console.log(data);
-               alert("Erro ocorrido no processamento do endereço do cliente");
-          });
-     });
 
      $(window).scroll(function() {
           if ($(this).scrollTop() > 100) {
@@ -77,7 +63,7 @@ $(document).ready(function() {
           "pageLength": 25,
           "aaSorting": [
                [4, 'asc'],
-               [3, 'asc']
+               [8, 'asc']
           ],
           "language": {
                "lengthMenu": "Demonstrar _MENU_ linhas por páginas",
@@ -127,13 +113,13 @@ $(document).ready(function() {
           <div class="qua-0">
                <div class="row qua-2 ">
                     <div class="col-md-11 text-left">
-                         <span>Consulta de Clientes</span>
+                         <span>Consulta de Produtos</span>
                     </div>
                     <div class="col-md-1">
-                         <form name="frmTelNov" action="man-cliente.php?ope=1&cod=0" method="POST">
+                         <form name="frmTelNov" action="man-produto.php?ope=1&cod=0" method="POST">
                               <div class="text-center">
                                    <button type="submit" class="bot-2" id="nov" name="novo"
-                                        title="Mostra campos para criar novo cliente no sistema"><i
+                                        title="Mostra campos para criar novo produto no sistema"><i
                                              class="fa fa-plus-circle fa-1g" aria-hidden="true"></i></button>
                               </div>
                          </form>
@@ -148,23 +134,25 @@ $(document).ready(function() {
                                         <tr>
                                              <th>Alterar</th>
                                              <th>Excluir</th>
-                                             <th>Endereços</th>
-                                             <th>Código</th>
-                                             <th>Suite</th>
+                                             <th>Imagens</th>
+                                             <th>Anexos</th>
                                              <th>Nome do Cliente</th>
+                                             <th>Número</th>
                                              <th>Status</th>
-                                             <th>E-Mail</th>
-                                             <th>C.p.f.</th>
-                                             <th>Telefone</th>
-                                             <th>Celular</th>
-                                             <th>Endereço</th>
-                                             <th>Bairro</th>
-                                             <th>Cidade</th>
-                                             <th>UF</th>
+                                             <th>Suite</th>
+                                             <th>Descrição do Produto</th>
+                                             <th>Unidade</th>
+                                             <th>Código</th>
+                                             <th>Grupo</th>
+                                             <th>Local</th>
+                                             <th>Peso</th>
+                                             <th>Preço</th>
+                                             <th>Estoque</th>
+                                             <th>Observação para o Produto</th>
                                         </tr>
                                    </thead>
                                    <tbody>
-                                        <?php $ret = carrega_cli();  ?>
+                                        <?php $ret = carrega_pro();  ?>
                                    </tbody>
                               </table>
                               <hr />
@@ -177,66 +165,45 @@ $(document).ready(function() {
           <img class="subir" src="img/subir.png" title="Volta a página para o seu topo." />
      </div>
 
-     <!----------------------------------------------------------------------------------->
-     <div class="modal fade" id="lis-end" tabindex="-1" role="dialog" aria-labelledby="tel-end" aria-hidden="true"
-          data-backdrop="true">
-          <div class="modal-dialog modal-lg" role="document"> <!-- modal-sm modal-lg modal-xl -->
-               <form id="frmMosEnd" name="frmMosEnd" action="con-cliente.php" method="POST">
-                    <div class="modal-content">
-                         <div class="modal-header">
-                              <h5 class="modal-title" id="tel-end">Lista de Endereços do Cliente</h5>
-                              <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-                                   <span aria-hidden="true">&times;</span>
-                              </button>
-                         </div>
-                         <div class="modal-body">
-                              <div class="form-row text-center">
-                                   <div class="col-md-12 text-center">
-                                        <div id="dad_end"></div>
-                                   </div>
-                              </div>
-                              <br />
-                         </div>
-                         <div class="modal-footer">
-                              <button type="button" id="clo" name="close" class="btn btn-outline-danger"
-                                   data-dismiss="modal">Fechar</button>
-                         </div>
-                    </div>
-               </form>
-          </div>
-     </div>
-     <!----------------------------------------------------------------------------------->
-
 </body>
 
 <?php
-function carrega_cli() {
+function carrega_pro() {
      include_once "dados.php";
-     $com = "Select * from tb_cliente where cliempresa = " . $_SESSION['wrkcodemp'] . " order by clinome, idcliente";
+     $com = "Select P.*, C.clinome, L.grudescricao as locdescricao, G.grudescricao as grudescricao from (((tb_produto P left join tb_cliente C on P.procliente = C.idcliente) left join tb_grupo L on P.prolocal = L.idgrupo) left join tb_grupo G on P.progrupo = G.idgrupo) where proempresa = " . $_SESSION['wrkcodemp'] . " order by prodescricao, idproduto";
      $nro = carrega_tab($com, $reg);
      foreach ($reg as $lin) {
          $txt =  '<tr>';
-         $txt .= '<td class="bot-3 text-center"><a href="man-cliente.php?ope=2&cod=' . $lin['idcliente'] . '" title="Efetua alteração do registro informado na linha"><i class="large material-icons">healing</i></a></td>';
-         $txt .= '<td class="lit-d bot-3 text-center"><a href="man-cliente.php?ope=3&cod=' . $lin['idcliente'] . '" title="Efetua exclusão do registro informado na linha"><i class="large material-icons">delete_forever</i></a></td>';
-         $txt .= '<td class="lit-d bot-3 text-center"><a class="item" href="#" ope=4 cod=' . $lin['idcliente'] . ' title="Efetua demonstração de endereços do cliente informado na linha"><i class="large material-icons">location_on</i></a></td>';
-         $txt .= '<td class="text-center">' . $lin['idcliente'] . '</td>';
-         $txt .= '<td class="text-center">' . $lin['clisuite'] . "</td>";
+         $txt .= '<td class="bot-3 text-center"><a href="man-produto.php?ope=2&cod=' . $lin['idproduto'] . '" title="Efetua alteração do registro informado na linha"><i class="large material-icons">healing</i></a></td>';
+         $txt .= '<td class="lit-d bot-3 text-center"><a href="man-produto.php?ope=3&cod=' . $lin['idproduto'] . '" title="Efetua exclusão do registro informado na linha"><i class="large material-icons">delete_forever</i></a></td>';
+         $txt .= '<td class="lit-d bot-3 text-center"><a href="man-produto.php?ope=4&cod=' . $lin['idproduto'] . '" title="Abre janela para ver todas as imagens anexadas ao produto informado na linha"><i class="large material-icons">camera_alt</i></a></td>';
+         $txt .= '<td class="text-center">' . anexos_qtd($lin['idproduto']) . "</td>";
          $txt .= "<td>" . $lin['clinome'] . "</td>";
-         if ($lin['clistatus'] == 0) {$txt .= "<td>" . "Normal" . "</td>";}
-         if ($lin['clistatus'] == 1) {$txt .= "<td>" . "Bloqueado" . "</td>";}
-         if ($lin['clistatus'] == 2) {$txt .= "<td>" . "Suspenso" . "</td>";}
-         if ($lin['clistatus'] == 3) {$txt .= "<td>" . "Cancelado" . "</td>";}
-         $txt .= "<td>" . $lin['cliemail'] . "</td>";
-         $txt .= "<td>" . mascara_cpo($lin['clicpf'], '   .   .   -  ') . "</td>";
-         $txt .= "<td>" . $lin['clitelefone'] . "</td>";
-         $txt .= "<td>" . $lin['clicelular'] . "</td>";
-         $txt .= "<td>" . $lin['cliendereco'] . ', ' . $lin['clinumero'] . ' ' . $lin['clicomplemento'] . "</td>";
-         $txt .= "<td>" . $lin['clibairro'] . "</td>";
-         $txt .= "<td>" . $lin['clicidade'] . "</td>";
-         $txt .= "<td>" . $lin['cliestado'] . "</td>";
+         $txt .= '<td class="text-center">' . $lin['idproduto'] . '</td>';
+         if ($lin['prostatus'] == 0) {$txt .= "<td>" . "Normal" . "</td>";}
+         if ($lin['prostatus'] == 1) {$txt .= "<td>" . "Bloqueado" . "</td>";}
+         if ($lin['prostatus'] == 2) {$txt .= "<td>" . "Suspenso" . "</td>";}
+         if ($lin['prostatus'] == 3) {$txt .= "<td>" . "Cancelado" . "</td>";}
+         $txt .= '<td class="text-center">' . $lin['prosuite'] . "</td>";
+         $txt .= "<td>" . $lin['prodescricao'] . "</td>";
+         $txt .= "<td>" . $lin['prounidade'] . "</td>";         
+         $txt .= "<td>" . $lin['procodigo'] . "</td>";
+         $txt .= "<td>" . $lin['grudescricao'] . "</td>";
+         $txt .= "<td>" . $lin['locdescricao'] . "</td>";
+         $txt .= '<td class="text-right">' . number_format($lin['propeso'], 4, ",", ".") . "</td>";
+         $txt .= '<td class="text-right">' . number_format($lin['propreco'], 2, ",", ".") . "</td>";
+         $txt .= '<td class="text-right">' . number_format($lin['proestoque'], 0, ",", ".") . "</td>";
+         $txt .= "<td>" . $lin['proobservacao'] . "</td>";
          $txt .= "</tr>";
          echo $txt;
      }
+}
+
+function anexos_qtd($cod) {
+     $qtd = 0; 
+     include_once "dados.php";
+     $qtd = quantidade_reg("Select idanexo, anesequencia from tb_produto_a where aneproduto = " . $cod , $men, $lin);     
+     return $qtd;
 }
 
 ?>
