@@ -43,22 +43,6 @@
 
 <script>
 $(document).ready(function() {
-     $(".item").click(function() {
-          var cod = $(this).attr("cod");
-          $.getJSON("carrega-ima.php", { cod: cod })
-          .done(function(data) {
-               if (data.msg != "") {
-                    alert(data.msg);
-               } else {
-                    $('#tit-fot').empty().html(data.txt);
-                    $('#fot-pro').modal('show');
-               }
-          }).fail(function(data){
-               console.log(data);
-               alert("Erro ocorrido no processamento da imagem do produto");
-          });          
-     });
-
      $(window).scroll(function() {
           if ($(this).scrollTop() > 100) {
                $(".subir").fadeIn(500);
@@ -78,13 +62,14 @@ $(document).ready(function() {
           "pageLength": 25,
           "aaSorting": [
                [4, 'asc'],
-               [8, 'asc']
+               [5, 'asc'],
+               [2, 'asc']
           ],
           "language": {
                "lengthMenu": "Demonstrar _MENU_ linhas por páginas",
                "zeroRecords": "Não existe registros a demonstar ...",
                "info": "Mostrada página _PAGE_ de _PAGES_",
-               "infoEmpty": "Sem registros de produtos ...",
+               "infoEmpty": "Sem registros de movimento ...",
                "sSearch": "Buscar:",
                "infoFiltered": "(Consulta de _MAX_ total de linhas)",
                "oPaginate": {
@@ -128,13 +113,13 @@ $(document).ready(function() {
           <div class="qua-0">
                <div class="row qua-2 ">
                     <div class="col-md-11 text-left">
-                         <span>Consulta de Produtos</span>
+                         <span>Consulta de Movimento</span>
                     </div>
                     <div class="col-md-1">
-                         <form name="frmTelNov" action="man-produto.php?ope=1&cod=0" method="POST">
+                         <form name="frmTelNov" action="man-movto.php?ope=1&cod=0" method="POST">
                               <div class="text-center">
                                    <button type="submit" class="bot-2" id="nov" name="novo"
-                                        title="Mostra campos para criar novo produto no sistema"><i
+                                        title="Mostra campos para criar novo movimento de estoque no sistema"><i
                                              class="fa fa-plus-circle fa-1g" aria-hidden="true"></i></button>
                               </div>
                          </form>
@@ -149,25 +134,22 @@ $(document).ready(function() {
                                         <tr>
                                              <th>Alterar</th>
                                              <th>Excluir</th>
-                                             <th>Imagens</th>
-                                             <th>Anexos</th>
-                                             <th>Nome do Cliente</th>
                                              <th>Número</th>
-                                             <th>Status</th>
                                              <th>Suite</th>
+                                             <th>Nome do Cliente</th>
                                              <th>Descrição do Produto</th>
-                                             <th>Unidade</th>
-                                             <th>Código</th>
-                                             <th>Grupo</th>
-                                             <th>Local</th>
-                                             <th>Peso</th>
+                                             <th>Status</th>
+                                             <th>Data e Hora</th>
+                                             <th>Transação</th>
+                                             <th>Tipo</th>
+                                             <th>Quantidade</th>
                                              <th>Preço</th>
-                                             <th>Estoque</th>
-                                             <th>Observação para o Produto</th>
+                                             <th>Valor</th>
+                                             <th>Observação do Movimento</th>
                                         </tr>
                                    </thead>
                                    <tbody>
-                                        <?php $ret = carrega_pro();  ?>
+                                        <?php $ret = carrega_mov();  ?>
                                    </tbody>
                               </table>
                               <hr />
@@ -179,47 +161,17 @@ $(document).ready(function() {
      <div id="box10">
           <img class="subir" src="img/subir.png" title="Volta a página para o seu topo." />
      </div>
-
-
-     <!-- Modal grande -->
-     <div id="fot-pro" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
-          aria-hidden="true">
-          <div class="modal-dialog modal-lg">     <!-- modal-xl modal-lg -->
-               <div class="modal-content">
-                    <div class="modal-header">
-                         <h4 class="modal-title" id="myLargeModalLabel">Imagens anexas do Produto</h4>
-                         <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-                              <span aria-hidden="true">&times;</span>
-                         </button>
-                    </div>
-                    <div class="modal-body">
-                         <div class="row text-center">
-                              <div class="col-md-12">
-                                   <div id="tit-fot"></div>
-                              </div>
-                         </div>
-                         <br />                         
-                         <div id="lis-fot"></div>
-                    </div>
-               </div>
-          </div>
-     </div>
-     <!--------------------->
-
-
 </body>
 
 <?php
-function carrega_pro() {
+function carrega_mov() {
      include_once "dados.php";
      $com = "Select P.*, C.clinome, L.grudescricao as locdescricao, G.grudescricao as grudescricao from (((tb_produto P left join tb_cliente C on P.procliente = C.idcliente) left join tb_grupo L on P.prolocal = L.idgrupo) left join tb_grupo G on P.progrupo = G.idgrupo) where proempresa = " . $_SESSION['wrkcodemp'] . " order by prodescricao, idproduto";
      $nro = carrega_tab($com, $reg);
      foreach ($reg as $lin) {
          $txt =  '<tr>';
-         $txt .= '<td class="bot-3 text-center"><a href="man-produto.php?ope=2&cod=' . $lin['idproduto'] . '" title="Efetua alteração do registro informado na linha"><i class="large material-icons">healing</i></a></td>';
-         $txt .= '<td class="lit-d bot-3 text-center"><a href="man-produto.php?ope=3&cod=' . $lin['idproduto'] . '" title="Efetua exclusão do registro informado na linha"><i class="large material-icons">delete_forever</i></a></td>';
-         $txt .= '<td class="lit-d bot-3 text-center"><a class="item" href="#" ope=4 cod=' . $lin['idproduto'] . ' title="Abre janela para ver todas as imagens anexadas ao produto informado na linha"><i class="large material-icons">camera_alt</i></a></td>';
-         $txt .= '<td class="text-center">' . anexos_qtd($lin['idproduto']) . "</td>";
+         $txt .= '<td class="bot-3 text-center"><a href="man-movto.php?ope=2&cod=' . $lin['idproduto'] . '" title="Efetua alteração do registro informado na linha"><i class="large material-icons">healing</i></a></td>';
+         $txt .= '<td class="lit-d bot-3 text-center"><a href="man-movto.php?ope=3&cod=' . $lin['idproduto'] . '" title="Efetua exclusão do registro informado na linha"><i class="large material-icons">delete_forever</i></a></td>';
          $txt .= "<td>" . $lin['clinome'] . "</td>";
          $txt .= '<td class="text-center">' . $lin['idproduto'] . '</td>';
          if ($lin['prostatus'] == 0) {$txt .= "<td>" . "Normal" . "</td>";}
@@ -229,7 +181,6 @@ function carrega_pro() {
          $txt .= '<td class="text-center">' . $lin['prosuite'] . "</td>";
          $txt .= "<td>" . $lin['prodescricao'] . "</td>";
          $txt .= "<td>" . $lin['prounidade'] . "</td>";         
-         $txt .= "<td>" . $lin['procodigo'] . "</td>";
          $txt .= "<td>" . $lin['grudescricao'] . "</td>";
          $txt .= "<td>" . $lin['locdescricao'] . "</td>";
          $txt .= '<td class="text-right">' . number_format($lin['propeso'], 4, ",", ".") . "</td>";
@@ -241,11 +192,36 @@ function carrega_pro() {
      }
 }
 
-function anexos_qtd($cod) {
-     $qtd = 0; 
-     include_once "dados.php";
-     $qtd = quantidade_reg("Select idanexo, anesequencia from tb_produto_a where aneproduto = " . $cod , $men, $lin);     
-     return $qtd;
+function carrega_cli($cli) {
+     $sta = 0;
+     include_once "dados.php";    
+     echo '<option value="0" selected="selected">Selecione cliente desejado ...</option>';
+     $com = "Select idcliente, clinome from tb_cliente where clistatus = 0  and cliempresa = " . $_SESSION['wrkcodemp'] . " order by clinome";
+     $nro = carrega_tab($com, $reg);
+     foreach ($reg as $lin) {
+          if ($lin['idcliente'] != $cli) {
+               echo  '<option value ="' . $lin['idcliente'] . '">' . $lin['clinome'] . '</option>'; 
+          }else{
+               echo  '<option value ="' . $lin['idcliente'] . '" selected="selected">' . $lin['clinome'] . '</option>';
+          }
+     }
+     return $sta;
+}
+
+function carrega_pro($pro) {
+     $sta = 0;
+     include_once "dados.php";    
+     echo '<option value="0" selected="selected">Selecione produto desejado ...</option>';
+     $com = "Select idproduto, prodescricao from tb_produto where prostatus = 0  and proempresa = " . $_SESSION['wrkcodemp'] . " order by prodescricao";
+     $nro = carrega_tab($com, $reg);
+     foreach ($reg as $lin) {
+          if ($lin['idproduto'] != $pro) {
+               echo  '<option value ="' . $lin['idproduto'] . '">' . $lin['prodescricao'] . '</option>'; 
+          }else{
+               echo  '<option value ="' . $lin['idproduto'] . '" selected="selected">' . $lin['prodescricao'] . '</option>';
+          }
+     }
+     return $sta;
 }
 
 ?>

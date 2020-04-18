@@ -116,7 +116,7 @@ $(document).ready(function() {
 </script>
 
 <?php
-     $ret = 0;
+     $ret = 00;
      $per = "";
      $end = "";
      $bot = "Salvar";
@@ -308,7 +308,7 @@ $(document).ready(function() {
                          </div>
                          <div class="col-md-3"></div>
                     </div>
-                    <div class="form-row">
+                    <div class="row">
                          <div class="col-md-12">
                               <label>Observação</label>
                               <textarea class="form-control" rows="3" id="obs" name="obs"><?php echo $obs ?></textarea>
@@ -333,7 +333,7 @@ $(document).ready(function() {
 
                     </div>
                     <br />
-                    <div class="form-row">
+                    <div class="row">
                          <div class="col-md-12 text-center">
                               <?php
                                         echo '<a class="tit-2" href="' . $_SESSION['wrkproant'] . '.php" title="Volta a página anterior deste processamento.">Voltar</a>'
@@ -443,7 +443,10 @@ function ler_produto($cha, &$des, &$sta, &$uni, &$key, &$gru, &$loc, &$pes, &$pr
  function consiste_pro() {
      $sta = 0;
      if (isset($_FILES['anexo']) == true) {
-          $ret = upload_ane($cam, $des, $tam, $ext);
+          $ret  = upload_ane($cam, $des, $tam, $ext, $men);
+          if ($men != "") {
+               echo '<script>alert("' . $men . '");</script>'; return 1;     
+          }
      }
      if (trim($_REQUEST['des']) == "") {
           echo '<script>alert("Descrição do produto informado não pode estar em branco");</script>';
@@ -556,8 +559,9 @@ function incluir_pro() {
      return $ret;
  }
 
- function upload_ane(&$cam, &$des, &$tam, &$ext) {
-     $sta = 0; $nro = 999;
+ function upload_ane(&$cam, &$des, &$tam, &$ext, &$men) {
+     $max = ini_get('upload_max_filesize');
+     $sta = 0; $nro = 999; $men = "";
      $arq = isset($_FILES['anexo']) ? $_FILES['anexo'] : false;
      if ($arq == false) {
           return 2;
@@ -580,9 +584,11 @@ function incluir_pro() {
      $erro[6] = 'Pasta temporária ausente para Upload do arquuivo informado';
      $erro[7] = 'Falha em escrever o arquivo para upload informado em disco';
      for ($ind = 0;$ind < $num; $ind++) {
+          $esp = $arq['size'][$ind];    // Está em bytes o campo original
           if ($arq['error'][$ind] != 0) {
-               if ($_SESSION['wrkopereg'] == 1) {
+               if ($_SESSION['wrkopereg'] >= 1) {
                     if ($arq['name'][$ind] != "") {
+                         $men = $erro[$arq['error'][$ind]];
                          echo "<script>alert(" . $erro[$arq['error'][$ind]] . "')</script>";
                     }
                     $sta = 4; 
@@ -620,7 +626,7 @@ function incluir_pro() {
                     echo "<script>alert('Erro na cópia do arquivo (" . $ind . ") informado para upload')</script>";
                     $sta = 6; 
                }      
-               $ret = incluir_ane($nro, $cam, $des, $tam, $nom, $ext);
+               $ret = incluir_ane($nro, $cam, $des, $tam, $lim, $nom, $ext);
 
           } 
      }   
@@ -638,7 +644,7 @@ function ultima_cha(&$ane) {
      return $qtd;
 }
 
-function incluir_ane($nro, $cam, $des, $tam, $nom, $ext) {
+function incluir_ane($nro, $cam, $des, $tam, $lim, $nom, $ext) {
      $ret = 0;
      include_once "dados.php";
      $sql  = "insert into tb_produto_a (";
@@ -666,7 +672,7 @@ function incluir_ane($nro, $cam, $des, $tam, $nom, $ext) {
      $sql .= "'" . substr($nom, 0, 75) . "',";
      $sql .= "'" . $_REQUEST['cli'] . "',";
      $sql .= "'" . substr($des, 0, 75) . "',";
-     $sql .= "'" . $tam . "',";
+     $sql .= "'" . round($lim,0 ) . "',";
      $sql .= "'" . $ext . "',";
      $sql .= "'" . 'Anexos importados de produtos ...' . "',";
      $sql .= "'" . $_SESSION['wrkideusu'] . "',";

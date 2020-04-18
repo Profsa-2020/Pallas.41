@@ -51,7 +51,8 @@ $(document).ready(function() {
                     alert(data.msg);
                } else {
                     $('#dad_end').empty().html(data.txt);
-                    $('#lis-end').modal('show');                         }
+                    $('#lis-end').modal('show');
+               }
           }).fail(function(data){
                console.log(data);
                alert("Erro ocorrido no processamento do endereço do cliente");
@@ -117,7 +118,7 @@ $(document).ready(function() {
 ?>
 
 <body id="box00">
-     <h1 class="cab-0">MyLogBox - Manutenção Clientes  - Controle de Estoques - Profsa Informática</h1>
+     <h1 class="cab-0">MyLogBox - Consulta de Clientes  - Controle de Estoques - Profsa Informática</h1>
      <div class="row">
           <div class="col-md-12">
                <?php include_once "cabecalho-1.php"; ?>
