@@ -44,7 +44,9 @@
 <script>
 $(function() {
      $("#cpf").mask("000.000.000-00");
-     $("#pes").mask("999.999,9999", { reverse: true });
+     $("#pes").mask("999.999,9999", {
+          reverse: true
+     });
      $("#dat").datepicker($.datepicker.regional["pt-BR"]);
 });
 
@@ -94,8 +96,8 @@ $(document).ready(function() {
      if (isset($_REQUEST['cod']) == true) { $_SESSION['wrkcodreg'] = $_REQUEST['cod']; }
      $cod = (isset($_REQUEST['cod']) == false ? 0  : $_REQUEST['cod']);
      $sta = (isset($_REQUEST['sta']) == false ? 0  : $_REQUEST['sta']);
-     $dat = (isset($_REQUEST['dat']) == false ? ''  : $_REQUEST['dat']);
-     $hor = (isset($_REQUEST['hor']) == false ? ''  : $_REQUEST['hor']);
+     $dat = (isset($_REQUEST['dat']) == false ? date('d/m/Y')  : $_REQUEST['dat']);
+     $hor = (isset($_REQUEST['hor']) == false ? date('H:m')  : $_REQUEST['hor']);
      $tip = (isset($_REQUEST['tip']) == false ? '' : $_REQUEST['tip']);
      $qtd = (isset($_REQUEST['qtd']) == false ? '' : $_REQUEST['qtd']);
      $cli = (isset($_REQUEST['cli']) == false ? 0 : $_REQUEST['cli']);
@@ -122,7 +124,6 @@ $(document).ready(function() {
      if (isset($_REQUEST['salvar']) == true) {
           $_SESSION['wrknumvol'] = $_SESSION['wrknumvol'] + 1;
           if ($_SESSION['wrkopereg'] == 1) {
-               $_SESSION['wrkcodreg'] = ultimo_cod();               
                $ret = consiste_mov();
                if ($ret == 0) {
                     $ret = incluir_mov();
@@ -130,13 +131,175 @@ $(document).ready(function() {
                     $sta = 0; $dat = ''; $hor = ''; $tip = ''; $qtd = ''; $cli = 0; $tra = 0; $pro = 0; $pre = ''; $obs = ''; $cod = ultimo_cod();
                }
           }
-
+          if ($_SESSION['wrkopereg'] == 2) {
+               $ret = consiste_mov();
+               if ($ret == 0) {
+                    $ret = alterar_mov();
+                    $ret = gravar_log(12,"Alteração de movimento existente: " . $des); $_SESSION['wrkmostel'] = 0;
+                    $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = 0; $pes = ''; $pre = '';  $obs = ''; $cod = ultimo_cod();
+                    echo '<script>history.go(-' . $_SESSION['wrknumvol'] . ');</script>'; $_SESSION['wrknumvol'] = 1;
+               }
+          }
+          if ($_SESSION['wrkopereg'] == 3) {
+               $ret = excluir_mov();
+               $ret = gravar_log(13,"Exclusão de movimento existente: " . $des); $_SESSION['wrkmostel'] = 0;
+               $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = 0; $pes = ''; $pre = '';  $obs = ''; $cod = ultimo_cod();
+               echo '<script>history.go(-' . $_SESSION['wrknumvol'] . ');</script>'; $_SESSION['wrknumvol'] = 1;
+          }
      }
 
      ?>
 
+<body id="box00">
+     <h1 class="cab-0">MyLogBox - Manutenção Movimento - Controle de Estoques - Profsa Informática</h1>
+     <div class="row">
+          <div class="col-md-12">
+               <?php include_once "cabecalho-1.php"; ?>
+          </div>
+     </div>
+     <div class="container">
+          <div class="qua-0">
+               <div class="row qua-2">
+                    <div class="col-md-11 text-left">
+                         <span>Manutenção de Movimento</span>
+                    </div>
+                    <div class="col-md-1">
+                         <form name="frmTelNov" action="man-movto.php?ope=1&cod=0" method="POST">
+                              <div class="text-center">
+                                   <button type="submit" class="bot-2" id="nov" name="novo"
+                                        title="Mostra campos para criar novo movimento no sistema"><i
+                                             class="fa fa-plus-circle fa-1g" aria-hidden="true"></i></button>
+                              </div>
+                         </form>
+                    </div>
+               </div>
 
-     <?php
+               <form class="tel-1" name="frmTelMan" action="" method="POST">
+                    <div class="row">
+                         <div class="col-md-2">
+                              <label>Número</label>
+                              <input type="text" class="form-control text-center" maxlength="6" id="cod" name="cod"
+                                   value="<?php echo $cod; ?>" disabled />
+                         </div>
+                         <div class="col-md-8"></div>
+                         <div class="col-md-2">
+                              <label>Status</label>
+                              <select name="sta" class="form-control">
+                                   <option value="0" <?php echo ($sta != 0 ? '' : 'selected="selected"'); ?>>
+                                        Normal</option>
+                                   <option value="1" <?php echo ($sta != 1 ? '' : 'selected="selected"'); ?>>
+                                        Bloqueado</option>
+                                   <option value="2" <?php echo ($sta != 2 ? '' : 'selected="selected"'); ?>>
+                                        Suspenso</option>
+                                   <option value="3" <?php echo ($sta != 3 ? '' : 'selected="selected"'); ?>>
+                                        Cancelado</option>
+                              </select>
+                         </div>
+                    </div>
+                    <div class="row">
+                         <div class="col-md-10">
+                              <label>Descrição do Produto</label>
+                              <input type="text" class="form-control" maxlength="100" id="des" name="des"
+                                   value="<?php echo $des; ?>" required />
+                         </div>
+                         <div class="col-md-2">
+                              <label>Unidade de Medida</label>
+                              <input type="text" class="form-control text-center" maxlength="5" id="uni" name="uni"
+                                   value="<?php echo $uni; ?>" />
+                         </div>
+                    </div>
+                    <div class="row">
+                         <div class="col-md-5"></div>
+                         <div class="col-md-2">
+                              <label>Suite</label>
+                              <input type="text" class="form-control text-center" maxlength="15" id="sui" name="sui"
+                                   value="<?php echo $sui ?>" />
+                         </div>
+                         <div class="col-md-5"></div>
+                    </div>
+
+                    <div class="row">
+                         <div class="col-md-2"></div>
+                         <div class="col-md-8">
+                              <label>Cliente (proprietário) </label>
+                              <select id="cli" name="cli" class="form-control">
+                                   <?php $ret = carrega_cli($cli); ?>
+                              </select>
+                         </div>
+                         <div class="col-md-2"></div>
+                    </div>
+                    <div class="row">
+                         <div class="col-md-6">
+                              <label>Grupo do Produto</label>
+                              <select id="gru" name="gru" class="form-control">
+                                   <?php $ret = carrega_gru($gru); ?>
+                              </select>
+                         </div>
+                         <div class="col-md-6">
+                              <label>Local do Produto</label>
+                              <select id="loc" name="loc" class="form-control">
+                                   <?php $ret = carrega_loc($loc); ?>
+                              </select>
+                         </div>
+                    </div>
+                    <div class="row">
+                         <div class="col-md-3"></div>
+                         <div class="col-md-2">
+                              <label>Código</label>
+                              <input type="text" class="form-control" maxlength="15" id="key" name="key"
+                                   value="<?php echo $key; ?>" />
+                         </div>
+                         <div class="col-md-2">
+                              <label>Peso (libras)</label>
+                              <input type="text" class="form-control text-right" maxlength="15" id="pes" name="pes"
+                                   value="<?php echo $pes ?>" />
+                         </div>
+                         <div class="col-md-2">
+                              <label>Preço Unitário</label>
+                              <input type="text" class="form-control text-right" maxlength="15" id="pre" name="pre"
+                                   value="<?php echo $pre ?>" />
+                         </div>
+                         <div class="col-md-3"></div>
+                    </div>
+                    <div class="row">
+                         <div class="col-md-12">
+                              <label>Observação</label>
+                              <textarea class="form-control" rows="3" id="obs" name="obs"><?php echo $obs ?></textarea>
+                         </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                         <div class="col-md-2 text-center">
+                              <div class="lit-2">
+                                   <?php echo 'Estoque: ' . $est; ?>
+                              </div>
+                         </div>
+                         <div class="col-md-8 text-center">
+                              <button type="submit" id="env" name="salvar" <?php echo $per; ?>
+                                   class="bot-1"><?php echo $bot; ?></button>
+                         </div>
+                         <div class="col-md-2 text-center">
+                              <button type="button" class="bot-2" name="doc_carrega" id="doc_carrega"
+                                   title="Abre janela para carregar anexos para o produto, imagens e videos."><i
+                                        class="fa fa-upload fa-3x" aria-hidden="true"></i></button>
+                         </div>
+
+                    </div>
+                    <br />
+                    <div class="row">
+                         <div class="col-md-12 text-center">
+                              <?php
+                                        echo '<a class="tit-2" href="' . $_SESSION['wrkproant'] . '.php" title="Volta a página anterior deste processamento.">Voltar</a>'
+                                   ?>
+                         </div>
+                    </div>
+                    <br />
+               </form>
+          </div>
+          <br />
+</body>
+
+<?php
 function ultimo_cod() {
      $cod = 1;
      include_once "dados.php";
@@ -222,8 +385,131 @@ function ler_movto($cha, &$dat, &$sta, &$hor, &$tip, &$qtd, &$cli, &$tra, &$pro,
           $qtd = number_format($lin['movquantidade'], 4, ",", ".");
      }
      return $cha;
+}
+
+function consiste_mov() {
+     $sta = 0;
+     if (trim($_REQUEST['dat']) == "") {
+          echo '<script>alert("Data do movimento informado não pode estar em branco");</script>';
+          return 1;
+     }
+     if (trim($_REQUEST['qtd']) == "" || trim($_REQUEST['qtd']) == 0) {
+          echo '<script>alert("Quantidade do movimento informado não pode estar em branco");</script>';
+          return 1;
+     }
+     if (trim($_REQUEST['tra']) == "" || trim($_REQUEST['tra']) == 0) {
+          echo '<script>alert("Código da transação do movimento não pode estar em branco");</script>';
+          return 1;
+     }
+     if (trim($_REQUEST['pro']) == "" || trim($_REQUEST['pro']) == 0) {
+          echo '<script>alert("Código do produto do movimento não pode estar em branco");</script>';
+          return 1;
+     }
+     if (trim($_REQUEST['cli']) == "" || trim($_REQUEST['cli']) == 0) {
+          echo '<script>alert("Código do cliente do movimento não pode estar em branco");</script>';
+          return 1;
+     }
+     return $sta;
+}
+
+function incluir_mov() {
+     $ret = 0;
+     include_once "dados.php";
+     $qtd = str_replace(".", "", $_REQUEST['qtd']); $qtd = str_replace(",", ".", $qtd);
+     $pre = str_replace(".", "", $_REQUEST['pre']); $pre = str_replace(",", ".", $pre);
+     $emi = substr($_REQUEST['emi'],6,4) . "-" . substr($_REQUEST['emi'],3,2) . "-" . substr($_REQUEST['emi'],0,2);
+     $sql  = "insert into tb_movto (";
+     $sql .= "movempresa, ";
+     $sql .= "movstatus, ";
+     $sql .= "movproduto, ";
+     $sql .= "movdata, ";
+     $sql .= "movcliente, ";
+     $sql .= "movtransacao, ";
+     $sql .= "movtipo, ";
+     $sql .= "movgrupo, ";
+     $sql .= "movlocal, ";
+     $sql .= "movsuite, ";
+     $sql .= "movquantidade, ";
+     $sql .= "movpreco, ";
+     $sql .= "movvalor, ";
+     $sql .= "movdolarent, ";
+     $sql .= "movdolarsai, ";
+     $sql .= "movobservacao, ";
+     $sql .= "keyinc, ";
+     $sql .= "datinc ";
+     $sql .= ") value ( ";
+     $sql .= "'" . $_SESSION['wrkcodemp'] . "',";
+     $sql .= "'" . $_REQUEST['sta'] . "',";
+     $sql .= "'" . str_replace("'", "´", $_REQUEST['des']) . "',";
+     $sql .= "'" . $_REQUEST['uni'] . "',";
+     $sql .= "'" . $_REQUEST['key'] . "',";
+     $sql .= "'" . $_REQUEST['gru'] . "',";
+     $sql .= "'" . $_REQUEST['loc'] . "',";
+     $sql .= "'" . ($pes == "" ? 0 : $pes) . "',";
+     $sql .= "'" . ($pre == "" ? 0 : $pre) . "',";
+     $sql .= "'" . $_REQUEST['cli'] . "',";
+     $sql .= "'" . $_REQUEST['sui'] . "',";
+     $sql .= "'" . $_REQUEST['obs'] . "',";
+     $sql .= "'" . $_SESSION['wrkideusu'] . "',";
+     $sql .= "'" . date("Y/m/d H:i:s") . "')";
+     $ret = comando_tab($sql, $nro, $ult, $men);
+     $_SESSION['wrkcodreg'] = $ult;
+     if ($ret == true) {
+          echo '<script>alert("Registro incluído no sistema com Sucesso !");</script>';
+     }else{
+          print_r($sql);
+          echo '<script>alert("Erro na gravação do registro solicitado !");</script>';
+     }
+     return $ret;
+ }
+
+ function alterar_mov() {
+     $ret = 0;
+     $qtd = str_replace(".", "", $_REQUEST['qtd']); $qtd = str_replace(",", ".", $qtd);
+     $pre = str_replace(".", "", $_REQUEST['pre']); $pre = str_replace(",", ".", $pre);
+     $emi = substr($_REQUEST['emi'],6,4) . "-" . substr($_REQUEST['emi'],3,2) . "-" . substr($_REQUEST['emi'],0,2);
+     include_once "dados.php";
+     $sql  = "update tb_movtoo set ";
+     $sql .= "movproduto = '". $_REQUEST['des'] . "', ";
+     $sql .= "movdata = '". $_REQUEST['sta'] . "', ";
+     $sql .= "movcliente = '". $_REQUEST['cli'] . "', ";
+     $sql .= "movproduto = '". $_REQUEST['pro'] . "', ";
+     $sql .= "movtransacao = '". $_REQUEST['tra'] . "', ";
+     $sql .= "movtipo = '". $_REQUEST['gru'] . "', ";
+     $sql .= "movgrupo = '". $_REQUEST['loc'] . "', ";
+     $sql .= "movlocal = '". $pes . "', ";
+     $sql .= "movsuite = '". $pre . "', ";
+     $sql .= "movquantidade = '". $qtd . "', ";
+     $sql .= "movpreco = '". $pre . "', ";
+     $sql .= "movvalor = '". $_REQUEST['sui'] . "', ";
+     $sql .= "movobservacao = '". str_replace("'", "´", $_REQUEST['obs']) . "', ";
+     $sql .= "keyalt = '" . $_SESSION['wrkideusu'] . "', ";
+     $sql .= "datalt = '" . date("Y/m/d H:i:s") . "' ";
+     $sql .= "where idmovto = " . $_SESSION['wrkcodreg'];
+     $ret = comando_tab($sql, $nro, $ult, $men);
+     if ($ret == true) {
+          echo '<script>alert("Registro alterado no sistema com Sucesso !");</script>';
+     }else{
+          print_r($sql);
+          echo '<script>alert("Erro na regravação do registro solicitado !");</script>';
+     }
+     return $ret;
+ }   
+     
+ function excluir_mov() {
+     $ret = 0;
+     include_once "dados.php";
+     $sql  = "delete from tb_movto where idmovto = " . $_SESSION['wrkcodreg'] ;
+     $ret = comando_tab($sql, $nro, $ult, $men);
+     if ($ret == true) {
+          echo '<script>alert("Registro excluído no sistema com Sucesso !");</script>';
+     } else {
+          print_r($sql);
+          echo '<script>alert("Erro na exclusão do registro solicitado !");</script>';
+     }
+     return $ret;
  }
 
 ?>
 
-     </html>
+</html>

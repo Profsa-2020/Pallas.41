@@ -44,6 +44,7 @@
 <script>
 $(function() {
      $("#cpf").mask("000.000.000-00");
+     $("#qd").mask("999.999", { reverse: true });
      $("#pre").mask("999.999,99", { reverse: true });
      $("#pes").mask("999.999,9999", { reverse: true });
      $("#dat").datepicker($.datepicker.regional["pt-BR"]);
@@ -146,6 +147,7 @@ $(document).ready(function() {
      $gru = (isset($_REQUEST['gru']) == false ? '' : $_REQUEST['gru']);
      $loc = (isset($_REQUEST['loc']) == false ? '' : $_REQUEST['loc']);
      $pes = (isset($_REQUEST['pes']) == false ? '' : $_REQUEST['pes']);
+     $qtd = (isset($_REQUEST['qtd']) == false ? '1' : $_REQUEST['qtd']);
      $pre = (isset($_REQUEST['pre']) == false ? '' : $_REQUEST['pre']);
      $cli = (isset($_REQUEST['cli']) == false ? '' : $_REQUEST['cli']);
      $sui = (isset($_REQUEST['sui']) == false ? '' : $_REQUEST['sui']);
@@ -165,7 +167,7 @@ $(document).ready(function() {
      if ($_SESSION['wrkopereg'] >= 2) {
           if (isset($_REQUEST['salvar']) == false) { 
                $cha = $_SESSION['wrkcodreg']; $_SESSION['wrkmostel'] = 1;
-               $ret = ler_produto($cha, $des, $sta, $uni, $key, $gru, $loc, $pes, $pre, $cli, $sui, $est, $obs); 
+               $ret = ler_produto($cha, $des, $sta, $uni, $key, $gru, $loc, $pes, $pre, $cli, $sui, $est, $qtd, $obs); 
           }
      }
      if (isset($_REQUEST['salvar']) == true) {
@@ -175,23 +177,25 @@ $(document).ready(function() {
                $ret = consiste_pro();
                if ($ret == 0) {
                     $ret = incluir_pro();
+                    $ret = processa_mov();
                     $ret = gravar_log(11,"Inclusão de novo produto: " . $des);
-                    $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = 0; $pes = ''; $pre = '';  $obs = ''; $cod = ultimo_cod();
+                    $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = 0; $pes = ''; $qtd = 1; $pre = '';  $obs = ''; $cod = ultimo_cod();
                }
           }
           if ($_SESSION['wrkopereg'] == 2) {
                $ret = consiste_pro();
                if ($ret == 0) {
                     $ret = alterar_pro();
+                    $ret = processa_mov();
                     $ret = gravar_log(12,"Alteração de produto existente: " . $des); $_SESSION['wrkmostel'] = 0;
-                    $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = 0; $pes = ''; $pre = '';  $obs = ''; $cod = ultimo_cod();
+                    $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = 0; $pes = ''; $qtd = 1; $pre = '';  $obs = ''; $cod = ultimo_cod();
                     echo '<script>history.go(-' . $_SESSION['wrknumvol'] . ');</script>'; $_SESSION['wrknumvol'] = 1;
                }
           }
           if ($_SESSION['wrkopereg'] == 3) {
                $ret = excluir_pro();
                $ret = gravar_log(13,"Exclusão de produto existente: " . $des); $_SESSION['wrkmostel'] = 0;
-               $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = 0; $pes = ''; $pre = '';  $obs = ''; $cod = ultimo_cod();
+               $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = 0; $pes = ''; $qtd = 1; $pre = '';  $obs = ''; $cod = ultimo_cod();
                echo '<script>history.go(-' . $_SESSION['wrknumvol'] . ');</script>'; $_SESSION['wrknumvol'] = 1;
           }
      }
@@ -290,11 +294,16 @@ $(document).ready(function() {
                          </div>
                     </div>
                     <div class="row">
-                         <div class="col-md-3"></div>
+                         <div class="col-md-2"></div>
                          <div class="col-md-2">
                               <label>Código</label>
                               <input type="text" class="form-control" maxlength="15" id="key" name="key"
                                    value="<?php echo $key; ?>" />
+                         </div>
+                         <div class="col-md-2">
+                              <label>Quantidade</label>
+                              <input type="text" class="form-control text-right" maxlength="15" id="qtd" name="qtd"
+                                   value="<?php echo $qtd; ?>" />
                          </div>
                          <div class="col-md-2">
                               <label>Peso (libras)</label>
@@ -306,7 +315,7 @@ $(document).ready(function() {
                               <input type="text" class="form-control text-right" maxlength="15" id="pre" name="pre"
                                    value="<?php echo $pre ?>" />
                          </div>
-                         <div class="col-md-3"></div>
+                         <div class="col-md-2"></div>
                     </div>
                     <div class="row">
                          <div class="col-md-12">
@@ -415,7 +424,7 @@ function carrega_cli($cli) {
      return $sta;
 }
 
-function ler_produto($cha, &$des, &$sta, &$uni, &$key, &$gru, &$loc, &$pes, &$pre, &$cli, &$sui, &$est, &$obs) {
+function ler_produto($cha, &$des, &$sta, &$uni, &$key, &$gru, &$loc, &$pes, &$pre, &$cli, &$sui, &$est, &$qtd, &$obs) {
      include_once "dados.php";
      $nro = quantidade_reg("Select * from tb_produto where idproduto = " . $cha, $men, $lin);     
      if ($nro == 0 || $lin == false) {
@@ -435,6 +444,7 @@ function ler_produto($cha, &$des, &$sta, &$uni, &$key, &$gru, &$loc, &$pes, &$pr
           $obs = $lin['proobservacao'];
           $est = number_format($lin['proestoque'], 0, ",", ".");
           $pes = number_format($lin['propeso'], 4, ",", ".");
+          $qtd = number_format($lin['proquantidade'], 0, ",", ".");
           $pre = number_format($lin['propreco'], 2, ",", ".");
      }
      return $cha;
@@ -467,6 +477,7 @@ function incluir_pro() {
      $ret = 0;
      include_once "dados.php";
      $pes = str_replace(".", "", $_REQUEST['pes']); $pes = str_replace(",", ".", $pes);
+     $qtd = str_replace(".", "", $_REQUEST['qtd']); $qtd = str_replace(",", ".", $qtd);
      $pre = str_replace(".", "", $_REQUEST['pre']); $pre = str_replace(",", ".", $pre);
      $sql  = "insert into tb_produto (";
      $sql .= "proempresa, ";
@@ -477,6 +488,7 @@ function incluir_pro() {
      $sql .= "progrupo, ";
      $sql .= "prolocal, ";
      $sql .= "propeso, ";
+     $sql .= "proquantidade, ";
      $sql .= "propreco, ";
      $sql .= "procliente, ";
      $sql .= "prosuite, ";
@@ -492,6 +504,7 @@ function incluir_pro() {
      $sql .= "'" . $_REQUEST['gru'] . "',";
      $sql .= "'" . $_REQUEST['loc'] . "',";
      $sql .= "'" . ($pes == "" ? 0 : $pes) . "',";
+     $sql .= "'" . ($qtd == "" ? 0 : $qtd) . "',";
      $sql .= "'" . ($pre == "" ? 0 : $pre) . "',";
      $sql .= "'" . $_REQUEST['cli'] . "',";
      $sql .= "'" . $_REQUEST['sui'] . "',";
@@ -512,6 +525,7 @@ function incluir_pro() {
  function alterar_pro() {
      $ret = 0;
      $pes = str_replace(".", "", $_REQUEST['pes']); $pes = str_replace(",", ".", $pes);
+     $qtd = str_replace(".", "", $_REQUEST['qtd']); $qtd = str_replace(",", ".", $qtd);
      $pre = str_replace(".", "", $_REQUEST['pre']); $pre = str_replace(",", ".", $pre);
      include_once "dados.php";
      $sql  = "update tb_produto set ";
@@ -522,6 +536,7 @@ function incluir_pro() {
      $sql .= "progrupo = '". $_REQUEST['gru'] . "', ";
      $sql .= "prolocal = '". $_REQUEST['loc'] . "', ";
      $sql .= "propeso = '". $pes . "', ";
+     $sql .= "proquantidade = '". $qtd . "', ";
      $sql .= "propreco = '". $pre . "', ";
      $sql .= "procliente = '". $_REQUEST['cli'] . "', ";
      $sql .= "prosuite = '". $_REQUEST['sui'] . "', ";
@@ -685,6 +700,83 @@ function incluir_ane($nro, $cam, $des, $tam, $lim, $nom, $ext) {
      return $ret;
 }
 
+function processa_mov() {
+     $ret = 0;
+     if ($_REQUEST['pes'] == "" || $_REQUEST['qtd'] == "" || $_REQUEST['pes'] == 0 || $_REQUEST['qtd'] == 0) {
+          return 1;
+     }     
+     $ret = ler_movto($tra_e, $nro_m, $pes_m, $qtd_m); 
+     $pes_p = str_replace(".", "", $_REQUEST['pes']); $pes_p = str_replace(",", ".", $pes_p);
+     $qtd_p = str_replace(".", "", $_REQUEST['qtd']); $qtd_p = str_replace(",", ".", $qtd_p);
+     $pre_p = str_replace(".", "", $_REQUEST['pre']); $pre_p = str_replace(",", ".", $pre_p);
+     if ($nro_m == 0 && $tra_e >= 1) {
+          $sql  = "insert into tb_movto (";
+          $sql .= "movempresa, ";
+          $sql .= "movstatus, ";
+          $sql .= "movproduto, ";
+          $sql .= "movdata, ";
+          $sql .= "movcliente, ";
+          $sql .= "movtransacao, ";
+          $sql .= "movtipo, ";
+          $sql .= "movgrupo, ";
+          $sql .= "movlocal, ";
+          $sql .= "movsuite, ";
+          $sql .= "movpeso, ";
+          $sql .= "movquantidade, ";
+          $sql .= "movpreco, ";
+          $sql .= "movvalor, ";
+          $sql .= "movdolarent, ";
+          $sql .= "movdolarsai, ";
+          $sql .= "movobservacao, ";
+          $sql .= "keyinc, ";
+          $sql .= "datinc ";
+          $sql .= ") value ( ";
+          $sql .= "'" . $_SESSION['wrkcodemp'] . "',";
+          $sql .= "'" . '0' . "',";
+          $sql .= "'" . $_SESSION['wrkcodreg'] . "',";
+          $sql .= "'" . date('Y-m-d H:i:s') . "',";
+          $sql .= "'" . $_REQUEST['cli'] . "',";
+          $sql .= "'" . $tra_e . "',";
+          $sql .= "'" . '0' . "',";
+          $sql .= "'" . $_REQUEST['gru'] . "',";
+          $sql .= "'" . $_REQUEST['loc'] . "',";
+          $sql .= "'" . $_REQUEST['sui'] . "',";
+          $sql .= "'" . $pes_p . "',";
+          $sql .= "'" . $qtd_p . "',";
+          $sql .= "'" . $pre_p . "',";
+          $sql .= "'" . ($qtd_p * $pre_p) . "',";
+          $sql .= "'" . $_SESSION['wrkdolant'] . "',";
+          $sql .= "'" . $_SESSION['wrkdoldia'] . "',";
+          $sql .= "'" . 'Movimento de entrada de quantidade em estoque do produto' . "',";
+          $sql .= "'" . $_SESSION['wrkideusu'] . "',";
+          $sql .= "'" . date("Y/m/d H:i:s") . "')";
+          $ret = comando_tab($sql, $nro, $ult, $men);
+          $_SESSION['wrkcodreg'] = $ult;
+          if ($ret == false) {
+               print_r($sql);
+               echo '<script>alert("Erro na gravação do movimento solicitado !");</script>';
+          }     
+     }
+     return $ret;
+}
+
+function ler_movto(&$tra, &$nro, &$pes, &$qtd) {
+     $ret = 0; $qtd = 0; $nro = 0; $pes = 0; $tra = 0;
+     include_once "dados.php";
+     $com = "Select idmovto, movproduto, movtipo, movpeso, movquantidade from tb_movto where movempresa = " . $_SESSION['wrkcodemp'] . " and movtipo = 0 and movproduto = " . $_SESSION['wrkcodreg'];
+     $ret = carrega_tab($com, $reg);
+     foreach ($reg as $lin) {
+          $pes = $lin['movpeso'];
+          $qtd = $lin['movquantidade'];
+          $nro = $nro + 1;
+     }
+     $com = "Select idgrupo from tb_grupo where gruempresa  = " . $_SESSION['wrkcodemp'] . " and grutiporeg = 3 and grutipogru = 1 order by idgrupo Limit 1";
+     $ret = carrega_tab($com, $reg);
+     foreach ($reg as $lin) {
+          $tra = $lin['idgrupo'];
+     }
+     return $ret;
+}
 
 ?>
 

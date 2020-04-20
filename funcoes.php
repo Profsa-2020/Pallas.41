@@ -386,5 +386,36 @@ function valida_ent($sen,$ema){
     return $nro;
 }
 
-
+function ler_dolar($dt1 = "", $dt2 = "", &$tx1, &$tx2) {
+    $ret = 0;   // Cotação do dólar do dia e do anterior via API
+    if ($dt1 != "") {
+        $dt1 = date('m-d-Y', strtotime($dt1));
+        $tx1 = 'https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoDolarDia(dataCotacao=@dataCotacao)?@dataCotacao=\'' . $dt1 . '\'&$top=100&$format=json&$select=cotacaoCompra,cotacaoVenda,dataHoraCotacao';
+        $tx1 = file_get_contents($tx1);    
+        $tx1 = json_decode($tx1);
+        if (isset($tx1->value[0]) == false) {
+            $tx1 = 0.00;
+        } else {
+            $cp1 = $tx1->value[0]->cotacaoCompra;
+            $vd1 = $tx1->value[0]->cotacaoVenda;
+            $dt1 = $tx1->value[0]->dataHoraCotacao;
+            $tx1 = $vd1;
+        }
+    }
+    if ($dt2 != "") {
+        $dt2 = date('m-d-Y', strtotime($dt2));
+        $tx2 = 'https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoDolarDia(dataCotacao=@dataCotacao)?@dataCotacao=\'' . $dt2 . '\'&$top=100&$format=json&$select=cotacaoCompra,cotacaoVenda,dataHoraCotacao';
+        $tx2 = file_get_contents($tx2);    
+        $tx2 = json_decode($tx2);
+        if (isset($tx2->value[0]) == false) {
+            $tx2 = 0.00;
+        } else {
+            $cp2 = $tx2->value[0]->cotacaoCompra;
+            $vd2 = $tx2->value[0]->cotacaoVenda;
+            $dt2 = $tx2->value[0]->dataHoraCotacao;
+            $tx2 = $vd2;
+        }
+    }
+    return $ret;
+}
 ?>

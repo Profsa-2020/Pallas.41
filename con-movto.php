@@ -61,6 +61,7 @@ $(document).ready(function() {
      $('#tab-0').DataTable({
           "pageLength": 25,
           "aaSorting": [
+               [7, 'asc'],
                [4, 'asc'],
                [5, 'asc'],
                [2, 'asc']
@@ -143,6 +144,7 @@ $(document).ready(function() {
                                              <th>Transação</th>
                                              <th>Tipo</th>
                                              <th>Quantidade</th>
+                                             <th>Peso</th>
                                              <th>Preço</th>
                                              <th>Valor</th>
                                              <th>Observação do Movimento</th>
@@ -166,27 +168,31 @@ $(document).ready(function() {
 <?php
 function carrega_mov() {
      include_once "dados.php";
-     $com = "Select P.*, C.clinome, L.grudescricao as locdescricao, G.grudescricao as grudescricao from (((tb_produto P left join tb_cliente C on P.procliente = C.idcliente) left join tb_grupo L on P.prolocal = L.idgrupo) left join tb_grupo G on P.progrupo = G.idgrupo) where proempresa = " . $_SESSION['wrkcodemp'] . " order by prodescricao, idproduto";
+     $com = "Select M.*, P.prodescricao, C.clinome, T.grudescricao as tradescricao from (((tb_movto M left join tb_produto P on M.movproduto = P.idproduto) left join tb_cliente C on M.movcliente = C.idcliente) left join tb_grupo T on M.movtransacao = T.idgrupo) where movempresa = " . $_SESSION['wrkcodemp'] . " order by movdata, movcliente, movproduto, idmovto";
      $nro = carrega_tab($com, $reg);
      foreach ($reg as $lin) {
          $txt =  '<tr>';
-         $txt .= '<td class="bot-3 text-center"><a href="man-movto.php?ope=2&cod=' . $lin['idproduto'] . '" title="Efetua alteração do registro informado na linha"><i class="large material-icons">healing</i></a></td>';
-         $txt .= '<td class="lit-d bot-3 text-center"><a href="man-movto.php?ope=3&cod=' . $lin['idproduto'] . '" title="Efetua exclusão do registro informado na linha"><i class="large material-icons">delete_forever</i></a></td>';
+         $txt .= '<td class="bot-3 text-center"><a href="man-movto.php?ope=2&cod=' . $lin['idmovto'] . '" title="Efetua alteração do registro informado na linha"><i class="large material-icons">healing</i></a></td>';
+         $txt .= '<td class="lit-d bot-3 text-center"><a href="man-movto.php?ope=3&cod=' . $lin['idmovto'] . '" title="Efetua exclusão do registro informado na linha"><i class="large material-icons">delete_forever</i></a></td>';
+         $txt .= '<td class="text-center">' . $lin['idmovto'] . '</td>';
+         $txt .= '<td class="text-center">' . $lin['movsuite'] . '</td>';
          $txt .= "<td>" . $lin['clinome'] . "</td>";
-         $txt .= '<td class="text-center">' . $lin['idproduto'] . '</td>';
-         if ($lin['prostatus'] == 0) {$txt .= "<td>" . "Normal" . "</td>";}
-         if ($lin['prostatus'] == 1) {$txt .= "<td>" . "Bloqueado" . "</td>";}
-         if ($lin['prostatus'] == 2) {$txt .= "<td>" . "Suspenso" . "</td>";}
-         if ($lin['prostatus'] == 3) {$txt .= "<td>" . "Cancelado" . "</td>";}
-         $txt .= '<td class="text-center">' . $lin['prosuite'] . "</td>";
          $txt .= "<td>" . $lin['prodescricao'] . "</td>";
-         $txt .= "<td>" . $lin['prounidade'] . "</td>";         
-         $txt .= "<td>" . $lin['grudescricao'] . "</td>";
-         $txt .= "<td>" . $lin['locdescricao'] . "</td>";
-         $txt .= '<td class="text-right">' . number_format($lin['propeso'], 4, ",", ".") . "</td>";
-         $txt .= '<td class="text-right">' . number_format($lin['propreco'], 2, ",", ".") . "</td>";
-         $txt .= '<td class="text-right">' . number_format($lin['proestoque'], 0, ",", ".") . "</td>";
-         $txt .= "<td>" . $lin['proobservacao'] . "</td>";
+         if ($lin['movstatus'] == 0) {$txt .= "<td>" . "Normal" . "</td>";}
+         if ($lin['movstatus'] == 1) {$txt .= "<td>" . "Bloqueado" . "</td>";}
+         if ($lin['movstatus'] == 2) {$txt .= "<td>" . "Suspenso" . "</td>";}
+         if ($lin['movstatus'] == 3) {$txt .= "<td>" . "Cancelado" . "</td>";}
+         $txt .= "<td>" . date('d/m/Y H:i', strtotime($lin['movdata'])) . "</td>";
+         $txt .= "<td>" . $lin['tradescricao'] . "</td>";
+         if ($lin['movtipo'] == 0) {$txt .= "<td>" . "Inicial(+)" . "</td>";}
+         if ($lin['movtipo'] == 1) {$txt .= "<td>" . "Entrada(+)" . "</td>";}
+         if ($lin['movtipo'] == 2) {$txt .= "<td>" . "Saída(-)" . "</td>";}
+         if ($lin['movtipo'] == 3) {$txt .= "<td>" . "Nulo(*)" . "</td>";}
+         $txt .= '<td class="text-right">' . number_format($lin['movquantidade'], 0, ",", ".") . "</td>";
+         $txt .= '<td class="text-right">' . number_format($lin['movpeso'], 4, ",", ".") . "</td>";
+         $txt .= '<td class="text-right">' . number_format($lin['movpreco'], 2, ",", ".") . "</td>";
+         $txt .= '<td class="text-right">' . number_format($lin['movvalor'], 2, ",", ".") . "</td>";
+         $txt .= "<td>" . $lin['movobservacao'] . "</td>";
          $txt .= "</tr>";
          echo $txt;
      }

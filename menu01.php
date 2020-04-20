@@ -66,7 +66,22 @@ $(document).ready(function() {
           exit('<script>location.href = "login.php"</script>');   
      } elseif ($_SESSION['wrknomusu'] == "#") {
           exit('<script>location.href = "login.php"</script>');   
-     }  
+     }
+
+     for ($ind = 1; $ind < 8; $ind++) {
+          $dt1 = date('d-m-Y', strtotime('-' . $ind . ' days'));
+          $dia = date('w', strtotime($dt1));   
+          if ($dia > 0 && $dia < 6) { break; }
+     }
+     $nro = $ind + 1;
+     for ($ind = $nro; $ind < 8; $ind++) {
+          $dt2 = date('d-m-Y', strtotime('-' . $ind . ' days'));
+          $dia = date('w', strtotime($dt2));   
+          if ($dia > 0 && $dia < 6) { break; }
+     }
+     $ret = ler_dolar($dt1, $dt2, $tx1, $tx2);
+     $_SESSION['wrkdoldia'] = $tx1;
+     $_SESSION['wrkdolant'] = $tx2;
      $tab = array();
      $ret = carrega_dash($tab);
 
@@ -90,6 +105,20 @@ $(document).ready(function() {
      </div>
 
      <br />
+     <div class="row">
+          <div class="col-md-4"></div>
+          <div class="col-md-2 text-center">
+               <img class="img-fluid" src="img/dolar.png" />
+          </div>
+          <div class="col-md-2 text-center">
+               <br />
+               <h3><p class="cor-2"><?php  echo date('d/m/Y', strtotime($dt1)) . ': R$ ' . number_format($tx1, 4, ",", "."); ?></p></h3><br />
+               <h3><p class="cor-2"><?php  echo date('d/m/Y', strtotime($dt2)) . ': R$ ' . number_format($tx2, 4, ",", "."); ?></p></h3>
+          </div>
+
+          <div class="col-md-4"></div>
+     </div>
+     <br /><br />
      <div class="row">
           <div class="col-md-1"></div>
           <div class="qua-4 col-md-2 text-center">

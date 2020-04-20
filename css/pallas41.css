@@ -58,12 +58,13 @@
 }
 
 .lit-2 {
-     color: #dadada;
+     width: 150px;
      height: 35px;
+     color: #cecbcb;
      font-size: 18px;
      font-weight: bold;
-     background-color:#00A0B8;
-     border-radius: 0px 10px 0px 10px;
+     background-color: #000000;
+     border-radius: 0px 20px 0px 20px;
 }
 
 .ima-1 {

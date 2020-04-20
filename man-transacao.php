@@ -83,7 +83,7 @@
      if (isset($_REQUEST['cod']) == true) { $_SESSION['wrkcodreg'] = $_REQUEST['cod']; }
      $cod = (isset($_REQUEST['cod']) == false ? 0 : $_REQUEST['cod']);
      $sta = (isset($_REQUEST['sta']) == false ? 0 : $_REQUEST['sta']);
-     $tip = (isset($_REQUEST['tip']) == false ? 1 : $_REQUEST['tip']);
+     $tip = (isset($_REQUEST['tip']) == false ? 2 : $_REQUEST['tip']);     // 0-Inicial, 1-entrada, 2-saida, 3-nulo
      $des = (isset($_REQUEST['des']) == false ? '' : str_replace("'", "´", $_REQUEST['des']));
      if ($_SESSION['wrkopereg'] == 1) { 
           $cod = ultimo_cod();
@@ -184,8 +184,8 @@
                     <div class="form-row text-center">
                          <div class="col-md-8"></div>
                          <div class="col-md-2 text-left">
-                              <input type="radio" name="tip" value="1" <?php if ($tip == 1) { echo ' checked ';} ?> /> Saída do Estoque(-) <br />   
-                              <input type="radio" name="tip" value="0" <?php if ($tip == 0) { echo ' checked ';} ?> /> Entrada no Estoque(+) 
+                              <input type="radio" name="tip" value="2" <?php if ($tip == 2) { echo ' checked ';} ?> /> Saída do Estoque(-) <br />   
+                              <input type="radio" name="tip" value="1" <?php if ($tip == 1) { echo ' checked ';} ?> /> Entrada no Estoque(+) 
                          </div>
                          <div class="col-md-2 text-right">
                               <button type="submit" name="salvar" <?php echo $per; ?>
@@ -261,8 +261,8 @@ function carrega_tra() {
           if ($lin['grustatus'] == 1) {$txt .= "<td>" . "Bloqueado" . "</td>";}
           if ($lin['grustatus'] == 2) {$txt .= "<td>" . "Suspenso" . "</td>";}
           if ($lin['grustatus'] == 3) {$txt .= "<td>" . "Cancelado" . "</td>";}
-          if ($lin['grutipogru'] == 0) {$txt .= "<td>" . "Entrada(+)" . "</td>";}
-          if ($lin['grutipogru'] == 1) {$txt .= "<td>" . "Saída(-)" . "</td>";}
+          if ($lin['grutipogru'] == 1) {$txt .= "<td>" . "Entrada(+)" . "</td>";}
+          if ($lin['grutipogru'] == 2) {$txt .= "<td>" . "Saída(-)" . "</td>";}
           $txt .= '<td class="text-left">' . $lin['grudescricao'] . "</td>";
           if ($lin['datinc'] == null) {
                $txt .= "<td>" . '' . "</td>";
