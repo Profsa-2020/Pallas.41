@@ -37,12 +37,35 @@
           src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
      <link href="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
 
+     <script type="text/javascript" src="js/datepicker-pt-BR.js"></script>
+
+     <script type="text/javascript" src="js/jquery.mask.min.js"></script>
+
      <link href="css/pallas41.css" rel="stylesheet" type="text/css" media="screen" />
      <title>MyLogBox - Controle de Estoques de compras de clientes nos EUA - Produtos</title>
 </head>
 
 <script>
 $(document).ready(function() {
+     $(function() {
+          $("#dti").mask("99/99/9999");
+          $("#dtf").mask("99/99/9999");
+          $("#dti").datepicker($.datepicker.regional["pt-BR"]);
+          $("#dtf").datepicker($.datepicker.regional["pt-BR"]);
+     });
+
+     $('#cli').change(function() {
+          $('#tab-0 tbody').empty();
+     });
+
+     $('#dti').change(function() {
+          $('#tab-0 tbody').empty();
+     });
+     
+     $('#dtf').change(function() {
+          $('#tab-0 tbody').empty();
+     });
+
      $(window).scroll(function() {
           if ($(this).scrollTop() > 100) {
                $(".subir").fadeIn(500);
@@ -101,7 +124,7 @@ $(document).ready(function() {
                $ret = gravar_log(6,"Entrada na página de consulta de clientes do sistema Pallas.41 - MyLogBox do Brasil");  
           }
      }
-     $dti = date('d/m/Y', strtotime('-15 days'));
+     $dti = date('d/m/Y', strtotime('-30 days'));
      $dtf = date('d/m/Y');
      $dti = (isset($_REQUEST['dti']) == false ? $dti : $_REQUEST['dti']);
      $dtf = (isset($_REQUEST['dtf']) == false ? $dtf : $_REQUEST['dtf']);
@@ -133,6 +156,37 @@ $(document).ready(function() {
                          </form>
                     </div>
                </div>
+
+               <form name="frmTelMan" action="" method="POST">
+                    <div class="row">
+                         <div class="col-md-1"></div>
+                         <div class="col-md-5">
+                              <label>Nome do Cliente</label>
+                              <select id="cli" name="cli" class="form-control">
+                                   <?php $ret = carrega_cli($cli); ?>
+                              </select>
+                         </div>
+                         <div class="col-md-1"></div>
+                         <div class="col-md-2">
+                              <label>Data Inicial</label>
+                              <input type="text" class="form-control text-center" maxlength="10" id="dti" name="dti"
+                                   value="<?php echo $dti; ?>" required />
+                         </div>
+                         <div class="col-md-2">
+                              <label>Data Final</label>
+                              <input type="text" class="form-control text-center" maxlength="10" id="dtf" name="dtf"
+                                   value="<?php echo $dtf; ?>" required />
+                         </div>
+                         <div class="col-md-1 text-center">
+                              <br />
+                              <button type="submit" id="con" name="consulta" class="bot-2"
+                                   title="Carrega movimento conforme periodo solicitado pelo usuário."><i
+                                        class="fa fa-search fa-2x" aria-hidden="true"></i></button>
+                         </div>
+                    </div>
+                    <br />
+               </form>
+               <br />
                <div class="row">
                     <div class="col-md-12">
                          <br />
@@ -158,7 +212,7 @@ $(document).ready(function() {
                                         </tr>
                                    </thead>
                                    <tbody>
-                                        <?php $ret = carrega_mov();  ?>
+                                        <?php $ret = carrega_mov($cli, $dti, $dtf);  ?>
                                    </tbody>
                               </table>
                               <hr />
@@ -173,9 +227,16 @@ $(document).ready(function() {
 </body>
 
 <?php
-function carrega_mov() {
+function carrega_mov($cli, $dti, $dtf) {
      include_once "dados.php";
-     $com = "Select M.*, P.prodescricao, C.clinome, T.grudescricao as tradescricao from (((tb_movto M left join tb_produto P on M.movproduto = P.idproduto) left join tb_cliente C on M.movcliente = C.idcliente) left join tb_grupo T on M.movtransacao = T.idgrupo) where movempresa = " . $_SESSION['wrkcodemp'] . " order by movcliente, movdata, movproduto, idmovto";
+     $dti = substr($dti,6,4) . "-" . substr($dti,3,2) . "-" . substr($dti,0,2) . " 00:00:00";
+     $dtf = substr($dtf,6,4) . "-" . substr($dtf,3,2) . "-" . substr($dtf,0,2) . " 23:59:59";
+     $com  = "Select M.*, P.prodescricao, C.clinome, T.grudescricao as tradescricao from (((tb_movto M left join tb_produto P on M.movproduto = P.idproduto) left join tb_cliente C on M.movcliente = C.idcliente) left join tb_grupo T on M.movtransacao = T.idgrupo) where movempresa = " . $_SESSION['wrkcodemp'];
+     if ($cli != 0) { $com .= " and movcliente = " . $cli; }
+     
+     $com .= " and movdata between '" . $dti . "' and '" . $dtf . "' ";
+
+     $com .= " order by movcliente, movdata, movproduto, idmovto";
      $nro = carrega_tab($com, $reg);
      foreach ($reg as $lin) {
          $txt =  '<tr>';

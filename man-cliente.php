@@ -273,7 +273,7 @@ $(document).ready(function() {
      if ($_SESSION['wrkopereg'] >= 2) {
           $end = ler_endereco();
           if (isset($_REQUEST['salvar']) == false) { 
-               $cha = $_SESSION['wrkcodreg']; $_SESSION['wrkmostel'] = 1;
+               $cha = $_SESSION['wrkcodreg']; $_SESSION['wrkmostel'] = 1; $_SESSION['wrkcodcli'] = $cha;
                $ret = ler_cliente($cha, $nom, $sta, $ape, $cpf, $reg, $sen, $sui, $obs, $dad); 
           }
      }
@@ -317,8 +317,17 @@ $(document).ready(function() {
      <div class="container">
           <div class="qua-0">
                <div class="row qua-2">
-                    <div class="col-md-11 text-left">
+                    <div class="col-md-10 text-left">
                          <span>Manutenção de Clientes</span>
+                    </div>
+                    <div class="col-md-1">
+                         <form name="frmTelNov" action="man-produto.php?ope=1&cod=0" method="POST">
+                              <div class="text-center">
+                                   <button type="submit" class="bot-2" id="nov" name="novo"
+                                        title="Abre janela com dados para criar novo produto do cliente no sistema"><i
+                                             class="fa fa-barcode fa-1g" aria-hidden="true"></i></button>
+                              </div>
+                         </form>
                     </div>
                     <div class="col-md-1">
                          <form name="frmTelNov" action="man-cliente.php?ope=1&cod=0" method="POST">
@@ -529,6 +538,7 @@ function ultimo_cod() {
           $dad['bai'][0] = $lin['clibairro'];
           $dad['cid'][0] = $lin['clicidade'];
           $dad['est'][0] = $lin['cliestado'];
+          $_SESSION['wrkcodsui'] = $lin['clisuite'];
           $dad['num'][0] = mascara_cpo($lin['clinumero'], '   .   ');
           $dad['cep'][0] = mascara_cpo($lin['clicep'], '     -   ');
      }
@@ -707,6 +717,8 @@ function incluir_cli() {
      $sql .= "'" . date("Y/m/d H:i:s") . "')";
      $ret = comando_tab($sql, $nro, $ult, $men);
      $_SESSION['wrkcodreg'] = $ult;
+     $_SESSION['wrkcodcli'] = $ult;
+     $_SESSION['wrkcodsui'] = $_REQUEST['sui'];
      if ($ret == true) {
           echo '<script>alert("Registro incluído no sistema com Sucesso !");</script>';
      }else{

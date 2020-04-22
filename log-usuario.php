@@ -57,6 +57,7 @@ $(document).ready(function() {
      $('#dti').change(function() {
           $('#tab-0 tbody').empty();
      });
+     
      $('#dtf').change(function() {
           $('#tab-0 tbody').empty();
      });

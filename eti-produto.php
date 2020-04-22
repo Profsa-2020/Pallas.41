@@ -39,7 +39,7 @@
 
      <link href="css/pallas41.css" rel="stylesheet" type="text/css" media="screen" />
      <link href="css/pallas41p.css" rel="stylesheet" type="text/css" media="print" />
-     <title>MyLogBox - Controle de Estoques de compras de clientes nos EUA - Produtos</title>
+     <title>MyLogBox - Controle de Estoques - Etiquetas</title>
 </head>
 
 <script>
@@ -74,17 +74,21 @@ $(document).ready(function() {
      if (isset($_REQUEST['ope']) == true) { $_SESSION['wrkopereg'] = $_REQUEST['ope']; }
      if (isset($_REQUEST['cod']) == true) { $_SESSION['wrkcodreg'] = $_REQUEST['cod']; }
 
-     $nro = quantidade_reg("Select P.*, C.clinome from (tb_produto P left join tb_cliente C on P.procliente = C.idcliente) where idproduto = " . $_SESSION['wrkcodreg'], $men, $lin);     
+     $nro = quantidade_reg("Select P.*, L.grudescricao, C.clinome from ((tb_produto P left join tb_cliente C on P.procliente = C.idcliente) left join tb_grupo L on P.prolocal = L.idgrupo) where idproduto = " . $_SESSION['wrkcodreg'], $men, $lin);     
      if ($nro == 0 || $lin == false) {
           echo '<script>alert("Código do produto solicitado não está cadastrado");</script>';
           $nro = 1;
      } else {
-          $txt .= '<span><strong>' . 'Código do Produto: ' . $lin['idproduto'] . '</strong></span><br />';
-          $txt .= '<span><strong>' . 'Descrição do Produto: ' . $lin['prodescricao'] . '</strong></span><br />';
+          $txt .= '<span><strong>' . 'Código do Cliente: ' . $lin['procliente'] . '</strong></span><br />';
           $txt .= '<span><strong>' . 'Nome do Cliente: ' . $lin['clinome'] . '</strong></span><br />';
           $txt .= '<span><strong>' . 'Número do Suite: ' . $lin['prosuite'] . '</strong></span><br />';
-          $txt .= '<span><strong>' . 'Unidade de Medida: ' . $lin['prounidade'] . '</strong></span><br />';
-          $txt .= '<span><strong>' . 'Peso do Produto: ' . number_format($lin['propeso'], 4, ",", ".") . '</strong></span><br />';
+          $txt .= '<span><strong>' . 'Local do Produto: ' . $lin['grudescricao'] . '</strong></span><br />';
+          $txt .= '<hr />';
+          $txt .= '<span>' . 'Código do Produto: ' . $lin['idproduto'] . '</span><br />';
+          $txt .= '<span>' . 'Descrição do Produto: ' . $lin['prodescricao'] . '</span><br />';
+          $txt .= '<span>' . 'Unidade de Medida: ' . $lin['prounidade'] . '</span><br />';
+          $txt .= '<span>' . 'Quantidade do Produto: ' . number_format($lin['proquantidade'], 0, ",", ".") . '</span><br />';
+          $txt .= '<span>' . 'Peso do Produto: ' . number_format($lin['propeso'], 4, ",", ".") . '</span><br />';
      }
 
 ?>
@@ -93,12 +97,14 @@ $(document).ready(function() {
      <h1 class="cab-0">MyLogBox - Etiqueta de Produtos - Controle de Estoques - Profsa Informática</h1>
      <br /> 
      <div class="row text-center">
-          <div class="col-md-12">
+          <div class="col-md-4"></div>
+          <div class="qua-5 col-md-4">
                <?php 
                     echo $txt;  
                     echo '<script> window.print(); </script>';
                ?>
           </div>
+          <div class="col-md-4"></div>
      </div>
      <div id="box10">
           <img class="subir" src="img/subir.png" title="Volta a página para o seu topo." />

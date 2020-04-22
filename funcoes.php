@@ -241,23 +241,45 @@ function valida_hor($tes) {
 }
 
 function dia_mes($dat) {
-$dia = 0;
-$mes = substr($dat, 3, 2);
-$ano = substr($dat, 6, 4);
-if ($mes == 1)  { $dia = 31; }
-if ($mes == 2)  { $dia = 28; }
-if ($mes == 3)  { $dia = 31; }
-if ($mes == 4)  { $dia = 30; }
-if ($mes == 5)  { $dia = 31; }
-if ($mes == 6)  { $dia = 30; }
-if ($mes == 7)  { $dia = 31; }
-if ($mes == 8)  { $dia = 31; }
-if ($mes == 9)  { $dia = 30; }
-if ($mes == 10) { $dia = 31; }
-if ($mes == 11) { $dia = 30; }
-if ($mes == 12) { $dia = 31; }
-if ($mes == 2 && ($ano % 4) == 0) { $dia = 29; }
-return $dia;
+    $dia = 0;
+    $mes = substr($dat, 3, 2);
+    $ano = substr($dat, 6, 4);
+    if ($mes == 1)  { $dia = 31; }
+    if ($mes == 2)  { $dia = 28; }
+    if ($mes == 3)  { $dia = 31; }
+    if ($mes == 4)  { $dia = 30; }
+    if ($mes == 5)  { $dia = 31; }
+    if ($mes == 6)  { $dia = 30; }
+    if ($mes == 7)  { $dia = 31; }
+    if ($mes == 8)  { $dia = 31; }
+    if ($mes == 9)  { $dia = 30; }
+    if ($mes == 10) { $dia = 31; }
+    if ($mes == 11) { $dia = 30; }
+    if ($mes == 12) { $dia = 31; }
+    if ($mes == 2 && ($ano % 4) == 0) { $dia = 29; }
+    return $dia;
+}
+
+function mes_ano($dat) {
+    $nom = '';
+    if (strlen($dat) <= 2) {
+        $mes = $dat;
+    }else{
+        $mes = substr($dat, 3, 2);
+    }
+    if ($mes == 1)  { $nom = 'Janeiro'; }
+    if ($mes == 2)  { $nom = 'Fevereiro'; }
+    if ($mes == 3)  { $nom = 'Março'; }
+    if ($mes == 4)  { $nom = 'Abril'; }
+    if ($mes == 5)  { $nom = 'Maio'; }
+    if ($mes == 6)  { $nom = 'Junho'; }
+    if ($mes == 7)  { $nom = 'Julho'; }
+    if ($mes == 8)  { $nom = 'Agosto'; }
+    if ($mes == 9)  { $nom = 'Setembro'; }
+    if ($mes == 10) { $nom = 'Outubro'; }
+    if ($mes == 11) { $nom = 'Novembro'; }
+    if ($mes == 12) { $nom = 'Dezembro'; }
+    return $nom;
 }
 
 function inverte_dat($dat) {

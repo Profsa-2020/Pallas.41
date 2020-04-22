@@ -149,8 +149,8 @@ $(document).ready(function() {
      $pes = (isset($_REQUEST['pes']) == false ? '' : $_REQUEST['pes']);
      $qtd = (isset($_REQUEST['qtd']) == false ? '1' : $_REQUEST['qtd']);
      $pre = (isset($_REQUEST['pre']) == false ? '' : $_REQUEST['pre']);
-     $cli = (isset($_REQUEST['cli']) == false ? '' : $_REQUEST['cli']);
-     $sui = (isset($_REQUEST['sui']) == false ? '' : $_REQUEST['sui']);
+     $cli = (isset($_REQUEST['cli']) == false ? $_SESSION['wrkcodcli'] : $_REQUEST['cli']);
+     $sui = (isset($_REQUEST['sui']) == false ? $_SESSION['wrkcodsui'] : $_REQUEST['sui']);
      $est = (isset($_REQUEST['est']) == false ? '' : $_REQUEST['est']);
      $des = (isset($_REQUEST['des']) == false ? '' : str_replace("'", "´", $_REQUEST['des']));
      $obs = (isset($_REQUEST['obs']) == false ? '' : str_replace("'", "´", $_REQUEST['obs']));
@@ -312,7 +312,7 @@ $(document).ready(function() {
                                    value="<?php echo $qtd; ?>" />
                          </div>
                          <div class="col-md-2">
-                              <label>Peso (libras)</label>
+                              <label>Peso Total (libras)</label>
                               <input type="text" class="form-control text-right" maxlength="15" id="pes" name="pes"
                                    value="<?php echo $pes ?>" />
                          </div>

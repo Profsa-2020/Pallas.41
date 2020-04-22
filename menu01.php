@@ -45,12 +45,75 @@ $(document).ready(function() {
           }, 1500);
      });
 
+     var cod = 0;
+     $.ajax({
+          url: 'grafico-gru.php',
+          type: 'POST',
+          dataType: 'json',
+          data: {
+               cod: cod
+          },
+          success: function(data) {
+               if (data != '*') {
+                    tit = data.tit;
+                    qtd = data.qtd;
+                    cor = data.cor;
+                    var ctx = document.getElementsByClassName("grafico-1");
+                    var chartGraph = new Chart(ctx, {
+                         type: 'pie',
+                         data: {
+                              labels: tit,
+                              datasets: [{
+                                   label: "Produtos por Grupos",
+                                   data: qtd,
+                                   borderWidth: 1,
+                                   borderColor: '#000000',
+                                   backgroundColor: cor,
+                              }]
+                         }
+                    });
+               }
+          }
+     });
+
+     $.ajax({
+               url: 'grafico-cli.php',
+               type: 'POST',
+               dataType: 'json',
+               data: {
+                    cod: cod
+               },
+               success: function(data) {
+                    if (data != '*') {
+                         tit = data.tit;
+                         val = data.qtd;
+                         cor = data.cor;
+                         var ctx = document.getElementsByClassName("grafico-2");
+                         var chartGraph = new Chart(ctx, {
+                              type: 'bar',
+                              data: {
+                                   labels: tit,
+                                   datasets: [{
+                                        label: "Clientes entrados por Mês",
+                                        data: val,
+                                        borderWidth: 1,
+                                        borderColor: 'rgba(4,69,254,0.9)',
+                                        backgroundColor: cor,
+                                   }]
+                              }
+                         });
+                    }
+               }
+          });
+
 });
 </script>
 
 <?php
      $ret = 00;
      include_once "funcoes.php";
+     $_SESSION['wrkcodcli'] = 0;
+     $_SESSION['wrkcodsui'] = '';
      $_SESSION['wrknumvol'] = 0;
      $_SESSION['wrknompro'] = __FILE__; 
      date_default_timezone_set("America/Sao_Paulo");
@@ -112,36 +175,63 @@ $(document).ready(function() {
           </div>
           <div class="col-md-2 text-center">
                <br />
-               <h3><p class="cor-2"><?php  echo date('d/m/Y', strtotime($dt1)) . ': R$ ' . number_format($tx1, 4, ",", "."); ?></p></h3><br />
-               <h3><p class="cor-2"><?php  echo date('d/m/Y', strtotime($dt2)) . ': R$ ' . number_format($tx2, 4, ",", "."); ?></p></h3>
+               <h3>
+                    <p class="cor-2">
+                         <?php  echo date('d/m/Y', strtotime($dt1)) . ': R$ ' . number_format($tx1, 4, ",", "."); ?></p>
+               </h3><br />
+               <h3>
+                    <p class="cor-2">
+                         <?php  echo date('d/m/Y', strtotime($dt2)) . ': R$ ' . number_format($tx2, 4, ",", "."); ?></p>
+               </h3>
           </div>
 
           <div class="col-md-4"></div>
      </div>
-     <br /><br />
+     <br /><br /><br />
+
+     <table class="tab-2">
+          <tbody>
+               <td class="qua-4">
+                    <i class="fa fa-filter fa-1g" aria-hidden="true"></i><br /><span> Grupos </span><br />
+                    <span><?php echo number_format($tab['gru'], 0, ",", "."); ?></span>
+               </td>
+               <td class="qua-4">
+                    <i class="fa fa-archive fa-1g" aria-hidden="true"></i><br /><span> Locais </span><br />
+                    <span><?php echo number_format($tab['loc'], 0, ",", "."); ?></span>
+               </td>
+               <td class="qua-4">
+                    <i class="fa fa-users fa-1g" aria-hidden="true"></i><br /><span> Clientes </span><br />
+                    <span><?php echo number_format($tab['cli'], 0, ",", "."); ?></span>
+               </td>
+               <td class="qua-4">
+                    <i class="fa fa-barcode fa-1g" aria-hidden="true"></i><br /><span> Produtos </span><br />
+                    <span><?php echo number_format($tab['pro'], 0, ",", "."); ?></span>
+               </td>
+               <td class="qua-4">
+                    <i class="fa fa-plane fa-1g" aria-hidden="true"></i><br /><span> Movimento </span><br />
+                    <span><?php echo number_format($tab['mov'], 0, ",", "."); ?></span>
+               </td>
+               <td class="qua-4">
+                    <i class="fa fa-id-badge fa-1g" aria-hidden="true"></i><br /><span> Usuários </span><br />
+                    <span><?php echo number_format($tab['usu'], 0, ",", "."); ?></span>
+               </td>
+          </tbody>
+     </table>
+
+     <br />
+     <hr /><br />
+
      <div class="row">
-          <div class="col-md-1"></div>
-          <div class="qua-4 col-md-2 text-center">
-               <i class="fa fa-filter fa-1g" aria-hidden="true"></i><br /><span> Grupos </span><br />
-               <span><?php echo number_format($tab['gru'], 0, ",", "."); ?></span>
+          <div class="col-md-2 text-center"></div>
+          <div class="col-md-4 text-center">
+               <p><strong>Produtos por Grupos</strong></p>
+               <canvas class="grafico-1"></canvas>
           </div>
-          <div class="qua-4 col-md-2 text-center">
-               <i class="fa fa-archive fa-1g" aria-hidden="true"></i><br /><span> Locais </span><br />
-               <span><?php echo number_format($tab['loc'], 0, ",", "."); ?></span>
+          <div class="col-md-4 text-center">
+               <p><strong>Clientes por Mês</strong></p>
+               <canvas class="grafico-2"></canvas>
           </div>
-          <div class="qua-4 col-md-2 text-center">
-               <i class="fa fa-id-badge fa-1g" aria-hidden="true"></i><br /><span> Usuários </span><br />
-               <span><?php echo number_format($tab['usu'], 0, ",", "."); ?></span>
-          </div>
-          <div class="qua-4 col-md-2 text-center">
-               <i class="fa fa-users fa-1g" aria-hidden="true"></i><br /><span> Clientes </span><br />
-               <span><?php echo number_format($tab['cli'], 0, ",", "."); ?></span>
-          </div>
-          <div class="qua-4 col-md-2 text-center">
-               <i class="fa fa-barcode fa-1g" aria-hidden="true"></i><br /><span> Produtos </span><br />
-               <span><?php echo number_format($tab['pro'], 0, ",", "."); ?></span>
-          </div>
-          <div class="col-md-1"></div>
+          <div class="col-md-2 text-center"></div>
      </div>
      <br />
      <hr /><br />
@@ -159,6 +249,7 @@ function carrega_dash(&$tab) {
      $tab['pro'] = 0;
      $tab['gru'] = 0;
      $tab['loc'] = 0;
+     $tab['mov'] = 0;
      include_once "dados.php";
      $com = "Select count(*) as qtdlinhas from tb_usuario";
      $nro = carrega_tab($com, $reg);
@@ -184,6 +275,11 @@ function carrega_dash(&$tab) {
      $nro = carrega_tab($com, $reg);
      foreach ($reg as $lin) {
           $tab['loc'] = $lin['qtdlinhas'];
+     }
+     $com = "Select count(*) as qtdlinhas from tb_movto where movempresa = " . $_SESSION['wrkcodemp'];
+     $nro = carrega_tab($com, $reg);
+     foreach ($reg as $lin) {
+          $tab['mov'] = $lin['qtdlinhas'];
      }
 
      return $sta;

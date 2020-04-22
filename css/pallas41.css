@@ -112,19 +112,29 @@
 }
 
 .qua-4 {
-     margin: 0px 5px;
+     width: 15%;
+     margin: 10px 15px;
      color: #dad8d8;
-     border-radius: 0px 15px 0px 15px;
      font-size: 20px;
      font-weight: bold;
      background-color: #009FB7;
+     border: 0.5px solid #000000;
  }
 
+ .qua-5 {
+     border: 0.5px solid rgb(126, 126, 128);
+ }
+ 
 .tab-1 {
      font-size: 12px;
      overflow: hidden;
      border-left: 1px solid #E9ECEF;
      border-right: 1px solid #E9ECEF;
+ }
+
+ .tab-2 {
+     width: 100%;
+     text-align: center;
  }
 
 .tit-1 {
