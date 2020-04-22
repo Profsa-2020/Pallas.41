@@ -116,13 +116,12 @@ $(document).ready(function() {
                $ret = gravar_log(6,"Entrada na página de log de acesso de usuários do sistema Pallas.38 - MyLogBox do Brasil");  
           }
      }
-     $hoj = date('d/m/Y'); $_SESSION['wrkmostel'] = 0;
      $dti = date('d/m/Y', strtotime('-6 days'));
      $dtf = date('d/m/Y');
      $dti = (isset($_REQUEST['dti']) == false ? $dti : $_REQUEST['dti']);
      $dtf = (isset($_REQUEST['dtf']) == false ? $dtf : $_REQUEST['dtf']);
      if (isset($_REQUEST['deleta']) == true) {
-          if ( $_SESSION['wrktipusu'] < 5) {
+          if ($_SESSION['wrktipusu'] < 6) {
                echo '<script>alert("Somente Administrador tem permissão de excluir Log !");</script>';
           } else {
                $dti = substr($dti,6,4) . "-" . substr($dti,3,2) . "-" . substr($dti,0,2) . " 00:00:00";

@@ -61,8 +61,8 @@ $(document).ready(function() {
      $('#tab-0').DataTable({
           "pageLength": 25,
           "aaSorting": [
+               [3, 'asc'],
                [7, 'asc'],
-               [4, 'asc'],
                [5, 'asc'],
                [2, 'asc']
           ],
@@ -101,6 +101,13 @@ $(document).ready(function() {
                $ret = gravar_log(6,"Entrada na página de consulta de clientes do sistema Pallas.41 - MyLogBox do Brasil");  
           }
      }
+     $dti = date('d/m/Y', strtotime('-15 days'));
+     $dtf = date('d/m/Y');
+     $dti = (isset($_REQUEST['dti']) == false ? $dti : $_REQUEST['dti']);
+     $dtf = (isset($_REQUEST['dtf']) == false ? $dtf : $_REQUEST['dtf']);
+     $cli = (isset($_REQUEST['cli']) == false ? 0 : $_REQUEST['cli']);
+     $pro = (isset($_REQUEST['pro']) == false ? 0 : $_REQUEST['pro']);
+
 ?>
 
 <body id="box00">
@@ -136,8 +143,8 @@ $(document).ready(function() {
                                              <th>Alterar</th>
                                              <th>Excluir</th>
                                              <th>Número</th>
-                                             <th>Suite</th>
                                              <th>Nome do Cliente</th>
+                                             <th>Suite</th>
                                              <th>Descrição do Produto</th>
                                              <th>Status</th>
                                              <th>Data e Hora</th>
@@ -168,15 +175,15 @@ $(document).ready(function() {
 <?php
 function carrega_mov() {
      include_once "dados.php";
-     $com = "Select M.*, P.prodescricao, C.clinome, T.grudescricao as tradescricao from (((tb_movto M left join tb_produto P on M.movproduto = P.idproduto) left join tb_cliente C on M.movcliente = C.idcliente) left join tb_grupo T on M.movtransacao = T.idgrupo) where movempresa = " . $_SESSION['wrkcodemp'] . " order by movdata, movcliente, movproduto, idmovto";
+     $com = "Select M.*, P.prodescricao, C.clinome, T.grudescricao as tradescricao from (((tb_movto M left join tb_produto P on M.movproduto = P.idproduto) left join tb_cliente C on M.movcliente = C.idcliente) left join tb_grupo T on M.movtransacao = T.idgrupo) where movempresa = " . $_SESSION['wrkcodemp'] . " order by movcliente, movdata, movproduto, idmovto";
      $nro = carrega_tab($com, $reg);
      foreach ($reg as $lin) {
          $txt =  '<tr>';
          $txt .= '<td class="bot-3 text-center"><a href="man-movto.php?ope=2&cod=' . $lin['idmovto'] . '" title="Efetua alteração do registro informado na linha"><i class="large material-icons">healing</i></a></td>';
          $txt .= '<td class="lit-d bot-3 text-center"><a href="man-movto.php?ope=3&cod=' . $lin['idmovto'] . '" title="Efetua exclusão do registro informado na linha"><i class="large material-icons">delete_forever</i></a></td>';
          $txt .= '<td class="text-center">' . $lin['idmovto'] . '</td>';
-         $txt .= '<td class="text-center">' . $lin['movsuite'] . '</td>';
          $txt .= "<td>" . $lin['clinome'] . "</td>";
+         $txt .= '<td class="text-center">' . $lin['movsuite'] . '</td>';
          $txt .= "<td>" . $lin['prodescricao'] . "</td>";
          if ($lin['movstatus'] == 0) {$txt .= "<td>" . "Normal" . "</td>";}
          if ($lin['movstatus'] == 1) {$txt .= "<td>" . "Bloqueado" . "</td>";}

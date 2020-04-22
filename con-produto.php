@@ -150,6 +150,7 @@ $(document).ready(function() {
                                              <th>Alterar</th>
                                              <th>Excluir</th>
                                              <th>Imagens</th>
+                                             <th>Etiqueta</th>
                                              <th>Anexos</th>
                                              <th>Nome do Cliente</th>
                                              <th>Número</th>
@@ -179,7 +180,6 @@ $(document).ready(function() {
      <div id="box10">
           <img class="subir" src="img/subir.png" title="Volta a página para o seu topo." />
      </div>
-
 
      <!-- Modal grande -->
      <div id="fot-pro" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
@@ -219,6 +219,7 @@ function carrega_pro() {
          $txt .= '<td class="bot-3 text-center"><a href="man-produto.php?ope=2&cod=' . $lin['idproduto'] . '" title="Efetua alteração do registro informado na linha"><i class="large material-icons">healing</i></a></td>';
          $txt .= '<td class="lit-d bot-3 text-center"><a href="man-produto.php?ope=3&cod=' . $lin['idproduto'] . '" title="Efetua exclusão do registro informado na linha"><i class="large material-icons">delete_forever</i></a></td>';
          $txt .= '<td class="lit-d bot-3 text-center"><a class="item" href="#" ope=4 cod=' . $lin['idproduto'] . ' title="Abre janela para ver todas as imagens anexadas ao produto informado na linha"><i class="large material-icons">camera_alt</i></a></td>';
+         $txt .= '<td class="lit-d bot-3 text-center"><a href="eti-produto.php?ope=5&cod=' . $lin['idproduto'] . '" target="_blank" title="Efetua impressão de etiqueta para o produto na linha"><i class="large material-icons">print</i></a></td>';
          $txt .= '<td class="text-center">' . anexos_qtd($lin['idproduto']) . "</td>";
          $txt .= "<td>" . $lin['clinome'] . "</td>";
          $txt .= '<td class="text-center">' . $lin['idproduto'] . '</td>';
@@ -234,7 +235,7 @@ function carrega_pro() {
          $txt .= "<td>" . $lin['locdescricao'] . "</td>";
          $txt .= '<td class="text-right">' . number_format($lin['propeso'], 4, ",", ".") . "</td>";
          $txt .= '<td class="text-right">' . number_format($lin['propreco'], 2, ",", ".") . "</td>";
-         $txt .= '<td class="text-right">' . number_format($lin['proestoque'], 0, ",", ".") . "</td>";
+         $txt .= '<td class="text-right">' . number_format($lin['proestoqueqtd'], 0, ",", ".") . "</td>";
          $txt .= "<td>" . $lin['proobservacao'] . "</td>";
          $txt .= "</tr>";
          echo $txt;

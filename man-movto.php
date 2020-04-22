@@ -43,14 +43,97 @@
 
 <script>
 $(function() {
-     $("#cpf").mask("000.000.000-00");
-     $("#pes").mask("999.999,9999", {
+     $("#hor").mask("00:00");
+     $("#qtd").mask("000.000", {
+          reverse: true
+     });
+     $("#pre").mask("000.000,00", {
+          reverse: true
+     });
+     $("#pes").mask("000.000,0000", {
           reverse: true
      });
      $("#dat").datepicker($.datepicker.regional["pt-BR"]);
 });
 
+
 $(document).ready(function() {
+     $("#sui").blur(function() {
+          var cli = $('#cli').val();
+          var sui = $('#sui').val();
+          $.getJSON("carrega-sui.php", {
+                    cli: cli,
+                    sui: sui
+               })
+               .done(function(data) {
+                    if (data.men != "") {
+                         alert(data.men);
+                    }
+                    if (data.cli != 0) {
+                         $('#cli').val(data.cli);
+                    }
+               }).fail(function(data) {
+                    console.log(data);
+                    alert("Erro ocorrido no processamento de suite para o cliente");
+               });
+     });
+
+     $("#tra").change(function() {
+          var ret = calculo_qtd();
+     });
+
+     $("#pro").change(function() {
+          var ret = calculo_qtd();
+          var pro = $('#pro').val();
+          var pre = $('#pre').val();
+          $.getJSON("carrega-pre.php", {
+                    pro: pro,
+                    pre: pre
+               })
+               .done(function(data) {
+                    if (data.men != "") {
+                         alert(data.men);
+                    }
+                    if (data.pes != "") {
+                         $('#pes').val(data.pes);
+                    }
+                    if (data.pre != "") {
+                         $('#pre').val(data.pre);
+                    }
+               }).fail(function(data) {
+                    console.log(data);
+                    alert("Erro ocorrido no processamento do preço do produto");
+               });
+     });
+
+     $("#qtd").change(function() {
+          var ret = calculo_qtd();
+     });
+
+     $("#pes").change(function() {
+          var ret = calculo_qtd();
+     });
+
+
+     $("#cli").change(function() {
+          var cli = $('#cli').val();
+          var sui = $('#sui').val();
+          $.getJSON("carrega-sui.php", {
+                    cli: cli,
+                    sui: sui
+               })
+               .done(function(data) {
+                    if (data.men != "") {
+                         alert(data.men);
+                    }
+                    if (data.sui != "") {
+                         $('#sui').val(data.sui);
+                    }
+               }).fail(function(data) {
+                    console.log(data);
+                    alert("Erro ocorrido no processamento de suite do cliente");
+               });
+     });
 
      $(window).scroll(function() {
           if ($(this).scrollTop() > 100) {
@@ -68,6 +151,36 @@ $(document).ready(function() {
      });
 
 });
+
+function calculo_qtd() {
+     var ret = 0;
+     var tra = $('#tra').val();
+     var pro = $('#pro').val();
+     var qtd = $('#qtd').val();
+     var pes = $('#pes').val();
+     var pre = $('#pre').val();
+     $.getJSON("calculo-qtd.php", {
+               tra: tra,
+               pro: pro,
+               qtd: qtd,
+               pes: pes,
+               pre: pre
+          })
+          .done(function(data) {
+               if (data.men != "") {
+                    $('#qtd').val('');
+                    alert(data.men);
+               }
+               if (data.txt != "") {
+                    $('#dad-cal').html(data.txt);
+               }
+          }).fail(function(data) {
+               console.log(data);
+               alert("Erro ocorrido no processamento do calculo de estoque");
+          });
+
+     return qtd;
+}
 </script>
 
 <?php
@@ -97,9 +210,11 @@ $(document).ready(function() {
      $cod = (isset($_REQUEST['cod']) == false ? 0  : $_REQUEST['cod']);
      $sta = (isset($_REQUEST['sta']) == false ? 0  : $_REQUEST['sta']);
      $dat = (isset($_REQUEST['dat']) == false ? date('d/m/Y')  : $_REQUEST['dat']);
-     $hor = (isset($_REQUEST['hor']) == false ? date('H:m')  : $_REQUEST['hor']);
+     $hor = (isset($_REQUEST['hor']) == false ? date('H:i')  : $_REQUEST['hor']);
      $tip = (isset($_REQUEST['tip']) == false ? '' : $_REQUEST['tip']);
      $qtd = (isset($_REQUEST['qtd']) == false ? '' : $_REQUEST['qtd']);
+     $pes = (isset($_REQUEST['pes']) == false ? '' : $_REQUEST['pes']);
+     $sui = (isset($_REQUEST['sui']) == false ? '' : $_REQUEST['sui']);
      $cli = (isset($_REQUEST['cli']) == false ? 0 : $_REQUEST['cli']);
      $tra = (isset($_REQUEST['tra']) == false ? 0 : $_REQUEST['tra']);
      $pro = (isset($_REQUEST['pro']) == false ? 0 : $_REQUEST['pro']);
@@ -118,7 +233,7 @@ $(document).ready(function() {
      if ($_SESSION['wrkopereg'] >= 2) {
           if (isset($_REQUEST['salvar']) == false) { 
                $cha = $_SESSION['wrkcodreg']; $_SESSION['wrkmostel'] = 1;
-               $ret = ler_movto($cha, $dat, $sta, $hor, $tip, $qtd, $cli, $tra, $pro, $pre, $obs); 
+               $ret = ler_movto($cha, $dat, $sta, $hor, $tip, $qtd, $pes, $cli, $sui, $tra, $pro, $pre, $obs); 
           }
      }
      if (isset($_REQUEST['salvar']) == true) {
@@ -127,7 +242,9 @@ $(document).ready(function() {
                $ret = consiste_mov();
                if ($ret == 0) {
                     $ret = incluir_mov();
-                    $ret = gravar_log(11,"Inclusão de novo movimento: " . $des);
+                    $ret = estoque_ind($pro, $qtd_e, $pes_e);
+                    $ret = atualiza_est($pro, $qtd_e, $pes_e);
+                    $ret = gravar_log(11,"Inclusão de novo movimento: " . $dat . " " . $hor);
                     $sta = 0; $dat = ''; $hor = ''; $tip = ''; $qtd = ''; $cli = 0; $tra = 0; $pro = 0; $pre = ''; $obs = ''; $cod = ultimo_cod();
                }
           }
@@ -135,14 +252,18 @@ $(document).ready(function() {
                $ret = consiste_mov();
                if ($ret == 0) {
                     $ret = alterar_mov();
-                    $ret = gravar_log(12,"Alteração de movimento existente: " . $des); $_SESSION['wrkmostel'] = 0;
+                    $ret = estoque_ind($pro, $qtd_e, $pes_e);
+                    $ret = atualiza_est($pro, $qtd_e, $pes_e);
+                    $ret = gravar_log(12,"Alteração de movimento existente: " . $dat . " " . $hor); $_SESSION['wrkmostel'] = 0;
                     $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = 0; $pes = ''; $pre = '';  $obs = ''; $cod = ultimo_cod();
                     echo '<script>history.go(-' . $_SESSION['wrknumvol'] . ');</script>'; $_SESSION['wrknumvol'] = 1;
                }
           }
           if ($_SESSION['wrkopereg'] == 3) {
                $ret = excluir_mov();
-               $ret = gravar_log(13,"Exclusão de movimento existente: " . $des); $_SESSION['wrkmostel'] = 0;
+               $ret = estoque_ind($pro, $qtd_e, $pes_e);
+               $ret = atualiza_est($pro, $qtd_e, $pes_e);
+          $ret = gravar_log(13,"Exclusão de movimento existente: " . $dat . " " . $hor); $_SESSION['wrkmostel'] = 0;
                $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = 0; $pes = ''; $pre = '';  $obs = ''; $cod = ultimo_cod();
                echo '<script>history.go(-' . $_SESSION['wrknumvol'] . ');</script>'; $_SESSION['wrknumvol'] = 1;
           }
@@ -197,16 +318,28 @@ $(document).ready(function() {
                          </div>
                     </div>
                     <div class="row">
-                         <div class="col-md-10">
-                              <label>Descrição do Produto</label>
-                              <input type="text" class="form-control" maxlength="100" id="des" name="des"
-                                   value="<?php echo $des; ?>" required />
+                         <div class="col-md-2"></div>
+                         <div class="col-md-8">
+                              <label>Transação para Estoque </label>
+                              <select id="tra" name="tra" class="form-control" required>
+                                   <?php $ret = carrega_tra($tra); ?>
+                              </select>
+                         </div>
+                         <div class="col-md-2"></div>
+                    </div>
+                    <div class="row">
+                         <div class="col-md-4"></div>
+                         <div class="col-md-2">
+                              <label>Data do Movimento</label>
+                              <input type="text" class="form-control text-center" maxlength="10" id="dat" name="dat"
+                                   value="<?php echo $dat; ?>" required />
                          </div>
                          <div class="col-md-2">
-                              <label>Unidade de Medida</label>
-                              <input type="text" class="form-control text-center" maxlength="5" id="uni" name="uni"
-                                   value="<?php echo $uni; ?>" />
+                              <label>Hora do Movimento</label>
+                              <input type="text" class="form-control text-center" maxlength="5" id="hor" name="hor"
+                                   value="<?php echo $hor; ?>" required />
                          </div>
+                         <div class="col-md-4"></div>
                     </div>
                     <div class="row">
                          <div class="col-md-5"></div>
@@ -229,25 +362,21 @@ $(document).ready(function() {
                          <div class="col-md-2"></div>
                     </div>
                     <div class="row">
-                         <div class="col-md-6">
-                              <label>Grupo do Produto</label>
-                              <select id="gru" name="gru" class="form-control">
-                                   <?php $ret = carrega_gru($gru); ?>
+                         <div class="col-md-2"></div>
+                         <div class="col-md-8">
+                              <label>Produto Desejado</label>
+                              <select id="pro" name="pro" class="form-control">
+                                   <?php $ret = carrega_pro($pro); ?>
                               </select>
                          </div>
-                         <div class="col-md-6">
-                              <label>Local do Produto</label>
-                              <select id="loc" name="loc" class="form-control">
-                                   <?php $ret = carrega_loc($loc); ?>
-                              </select>
-                         </div>
+                         <div class="col-md-2"></div>
                     </div>
                     <div class="row">
                          <div class="col-md-3"></div>
                          <div class="col-md-2">
-                              <label>Código</label>
-                              <input type="text" class="form-control" maxlength="15" id="key" name="key"
-                                   value="<?php echo $key; ?>" />
+                              <label>Quantidade</label>
+                              <input type="text" class="form-control text-right" maxlength="15" id="qtd" name="qtd"
+                                   value="<?php echo $qtd; ?>" />
                          </div>
                          <div class="col-md-2">
                               <label>Peso (libras)</label>
@@ -264,26 +393,19 @@ $(document).ready(function() {
                     <div class="row">
                          <div class="col-md-12">
                               <label>Observação</label>
-                              <textarea class="form-control" rows="3" id="obs" name="obs"><?php echo $obs ?></textarea>
+                              <textarea class="form-control" rows="2" id="obs" name="obs"><?php echo $obs ?></textarea>
                          </div>
                     </div>
                     <br />
                     <div class="row">
-                         <div class="col-md-2 text-center">
-                              <div class="lit-2">
-                                   <?php echo 'Estoque: ' . $est; ?>
-                              </div>
-                         </div>
-                         <div class="col-md-8 text-center">
+                         <div class="col-md-12 text-center">
                               <button type="submit" id="env" name="salvar" <?php echo $per; ?>
                                    class="bot-1"><?php echo $bot; ?></button>
                          </div>
-                         <div class="col-md-2 text-center">
-                              <button type="button" class="bot-2" name="doc_carrega" id="doc_carrega"
-                                   title="Abre janela para carregar anexos para o produto, imagens e videos."><i
-                                        class="fa fa-upload fa-3x" aria-hidden="true"></i></button>
-                         </div>
-
+                    </div>
+                    <br />
+                    <div class="row text-center">
+                         <div id="dad-cal" class="cor-2 col-md-12"></div>
                     </div>
                     <br />
                     <div class="row">
@@ -297,6 +419,9 @@ $(document).ready(function() {
                </form>
           </div>
           <br />
+          <div id="box10">
+               <img class="subir" src="img/subir.png" title="Volta a página para o seu topo." />
+          </div>
 </body>
 
 <?php
@@ -310,16 +435,16 @@ function ultimo_cod() {
      return $cod;
 }
 
-function carrega_tra($loc) {
+function carrega_tra($tra) {
      $sta = 0;
      include_once "dados.php";    
-     if ($loc == 0) {
+     if ($tra == 0) {
           echo '<option value="0" selected="selected">Selecione transação desejada ...</option>';
      }
      $com = "Select idgrupo, grudescricao from tb_grupo where grustatus = 0 and grutiporeg = 3 and gruempresa = " . $_SESSION['wrkcodemp'] . " order by grudescricao";
      $nro = carrega_tab($com, $reg);
      foreach ($reg as $lin) {
-          if ($lin['idgrupo'] != $loc) {
+          if ($lin['idgrupo'] != $tra) {
                echo  '<option value ="' . $lin['idgrupo'] . '">' . $lin['grudescricao'] . '</option>'; 
           }else{
                echo  '<option value ="' . $lin['idgrupo'] . '" selected="selected">' . $lin['grudescricao'] . '</option>';
@@ -364,7 +489,7 @@ function carrega_pro($pro) {
      return $sta;
 }
 
-function ler_movto($cha, &$dat, &$sta, &$hor, &$tip, &$qtd, &$cli, &$tra, &$pro, &$pre, &$obs) {
+function ler_movto($cha, &$dat, &$sta, &$hor, &$tip, &$qtd, &$pes, &$cli, &$sui, &$tra, &$pro, &$pre, &$obs) {
      include_once "dados.php";
      $nro = quantidade_reg("Select * from tb_movto where idmovto = " . $cha, $men, $lin);     
      if ($nro == 0 || $lin == false) {
@@ -377,12 +502,14 @@ function ler_movto($cha, &$dat, &$sta, &$hor, &$tip, &$qtd, &$cli, &$tra, &$pro,
           $sta = $lin['movstatus'];
           $tip = $lin['movtipo'];
           $cli = $lin['movcliente'];
+          $sui = $lin['movsuite'];
           $tra = $lin['movtransacao'];
           $pro = $lin['movproduto'];
           $cli = $lin['movcliente'];
           $obs = $lin['movobservacao'];
           $pre = number_format($lin['movpreco'], 2, ",", ".");
-          $qtd = number_format($lin['movquantidade'], 4, ",", ".");
+          $pes = number_format($lin['movpeso'], 4, ",", ".");
+          $qtd = number_format($lin['movquantidade'], 0, ",", ".");
      }
      return $cha;
 }
@@ -409,15 +536,38 @@ function consiste_mov() {
           echo '<script>alert("Código do cliente do movimento não pode estar em branco");</script>';
           return 1;
      }
+     if ($_REQUEST['dat'] != "") {
+          if (valida_dat($_REQUEST['dat']) != 0) {
+               echo '<script>alert("Data do movimento informada não é valida");</script>';
+               return 4;
+          }
+     }
+     if ($_REQUEST['hor'] != "") {
+          if (valida_hor($_REQUEST['hor']) != 0) {
+               echo '<script>alert("Hora do movimento informada não é valida");</script>';
+               return 4;
+          }
+     }
      return $sta;
 }
 
 function incluir_mov() {
-     $ret = 0;
+     $ret = 0; $tip = 0; $gru = 0; $loc = 0;
      include_once "dados.php";
+     $nro = quantidade_reg("Select idgrupo, grutipogru from tb_grupo where idgrupo = " . $_REQUEST['tra'], $men, $lin);     
+     if ($nro == 1 || $lin == true) {
+          $tip = $lin['grutipogru']; 
+     }     
+     $nro = quantidade_reg("Select idproduto, progrupo, prolocal from tb_produto where idproduto = " . $_REQUEST['pro'], $men, $lin);     
+     if ($nro == 1 || $lin == true) {
+          $loc = $lin['prolocal']; 
+          $gru = $lin['progrupo']; 
+     }     
      $qtd = str_replace(".", "", $_REQUEST['qtd']); $qtd = str_replace(",", ".", $qtd);
+     $pes = str_replace(".", "", $_REQUEST['pes']); $pes = str_replace(",", ".", $pes);
      $pre = str_replace(".", "", $_REQUEST['pre']); $pre = str_replace(",", ".", $pre);
-     $emi = substr($_REQUEST['emi'],6,4) . "-" . substr($_REQUEST['emi'],3,2) . "-" . substr($_REQUEST['emi'],0,2);
+     $dat = substr($_REQUEST['dat'],6,4) . "-" . substr($_REQUEST['dat'],3,2) . "-" . substr($_REQUEST['dat'],0,2) . " " . $_REQUEST['hor'];
+     if ($pre == "") { $pre = 0; }
      $sql  = "insert into tb_movto (";
      $sql .= "movempresa, ";
      $sql .= "movstatus, ";
@@ -429,6 +579,7 @@ function incluir_mov() {
      $sql .= "movgrupo, ";
      $sql .= "movlocal, ";
      $sql .= "movsuite, ";
+     $sql .= "movpeso, ";
      $sql .= "movquantidade, ";
      $sql .= "movpreco, ";
      $sql .= "movvalor, ";
@@ -440,15 +591,20 @@ function incluir_mov() {
      $sql .= ") value ( ";
      $sql .= "'" . $_SESSION['wrkcodemp'] . "',";
      $sql .= "'" . $_REQUEST['sta'] . "',";
-     $sql .= "'" . str_replace("'", "´", $_REQUEST['des']) . "',";
-     $sql .= "'" . $_REQUEST['uni'] . "',";
-     $sql .= "'" . $_REQUEST['key'] . "',";
-     $sql .= "'" . $_REQUEST['gru'] . "',";
-     $sql .= "'" . $_REQUEST['loc'] . "',";
-     $sql .= "'" . ($pes == "" ? 0 : $pes) . "',";
-     $sql .= "'" . ($pre == "" ? 0 : $pre) . "',";
+     $sql .= "'" . $_REQUEST['pro'] . "',";
+     $sql .= "'" . $dat . "',";
      $sql .= "'" . $_REQUEST['cli'] . "',";
+     $sql .= "'" . $_REQUEST['tra'] . "',";
+     $sql .= "'" . $tip . "',";
+     $sql .= "'" . $gru . "',";
+     $sql .= "'" . $loc . "',";
      $sql .= "'" . $_REQUEST['sui'] . "',";
+     $sql .= "'" . ($pes == "" ? 0 : $pes) . "',";
+     $sql .= "'" . ($qtd == "" ? 0 : $qtd) . "',";
+     $sql .= "'" . ($pre == "" ? 0 : $pre) . "',";
+     $sql .= "'" . round($qtd * $pre, 4) . "',";
+     $sql .= "'" . ($tip == 2 ? 0 : $_SESSION['wrkdoldia']) . "',";
+     $sql .= "'" . ($tip == 1 ? 0 : $_SESSION['wrkdoldia']) . "',";
      $sql .= "'" . $_REQUEST['obs'] . "',";
      $sql .= "'" . $_SESSION['wrkideusu'] . "',";
      $sql .= "'" . date("Y/m/d H:i:s") . "')";
@@ -464,24 +620,34 @@ function incluir_mov() {
  }
 
  function alterar_mov() {
-     $ret = 0;
+     $ret = 0; $tip = 0; $gru = 0; $loc = 0;
+     include_once "dados.php";
+     $nro = quantidade_reg("Select idgrupo, grutipogru from tb_grupo where idgrupo = " . $_REQUEST['tra'], $men, $lin);     
+     if ($nro == 1 || $lin == true) {
+          $tip = $lin['grutipogru']; 
+     }     
+     $nro = quantidade_reg("Select idproduto, progrupo, prolocal from tb_produto where idproduto = " . $_REQUEST['pro'], $men, $lin);     
+     if ($nro == 1 || $lin == true) {
+          $loc = $lin['prolocal']; 
+          $gru = $lin['progrupo']; 
+     }     
      $qtd = str_replace(".", "", $_REQUEST['qtd']); $qtd = str_replace(",", ".", $qtd);
      $pre = str_replace(".", "", $_REQUEST['pre']); $pre = str_replace(",", ".", $pre);
-     $emi = substr($_REQUEST['emi'],6,4) . "-" . substr($_REQUEST['emi'],3,2) . "-" . substr($_REQUEST['emi'],0,2);
-     include_once "dados.php";
-     $sql  = "update tb_movtoo set ";
-     $sql .= "movproduto = '". $_REQUEST['des'] . "', ";
-     $sql .= "movdata = '". $_REQUEST['sta'] . "', ";
-     $sql .= "movcliente = '". $_REQUEST['cli'] . "', ";
+     $dat = substr($_REQUEST['dat'],6,4) . "-" . substr($_REQUEST['dat'],3,2) . "-" . substr($_REQUEST['dat'],0,2) . " " . $_REQUEST['hor'];
+     if ($pre == "") { $pre = 0; }
+     $sql  = "update tb_movto set ";
      $sql .= "movproduto = '". $_REQUEST['pro'] . "', ";
+     $sql .= "movdata = '". $dat . "', ";
+     $sql .= "movcliente = '". $_REQUEST['cli'] . "', ";
      $sql .= "movtransacao = '". $_REQUEST['tra'] . "', ";
-     $sql .= "movtipo = '". $_REQUEST['gru'] . "', ";
-     $sql .= "movgrupo = '". $_REQUEST['loc'] . "', ";
-     $sql .= "movlocal = '". $pes . "', ";
-     $sql .= "movsuite = '". $pre . "', ";
-     $sql .= "movquantidade = '". $qtd . "', ";
-     $sql .= "movpreco = '". $pre . "', ";
-     $sql .= "movvalor = '". $_REQUEST['sui'] . "', ";
+     $sql .= "movtipo = '". $tip . "', ";
+     $sql .= "movgrupo = '". $gru . "', ";
+     $sql .= "movlocal = '". $loc . "', ";
+     $sql .= "movsuite = '". $_REQUEST['sui'] . "', ";
+     $sql .= "movpeso = '". ($pes == "" ? 0 : $pes) . "', ";
+     $sql .= "movquantidade = '". ($qtd == "" ? 0 : $qtd) . "', ";     
+     $sql .= "movpreco = '". ($pre == "" ? 0 : $pre) . "', ";
+     $sql .= "movvalor = '". round($qtd * $pre, 2) . "', ";
      $sql .= "movobservacao = '". str_replace("'", "´", $_REQUEST['obs']) . "', ";
      $sql .= "keyalt = '" . $_SESSION['wrkideusu'] . "', ";
      $sql .= "datalt = '" . date("Y/m/d H:i:s") . "' ";

@@ -178,8 +178,10 @@ $(document).ready(function() {
                if ($ret == 0) {
                     $ret = incluir_pro();
                     $ret = processa_mov();
+                    $ret = estoque_ind($_SESSION['wrkcodreg'], $qtd_e, $pes_e);
+                    $ret = atualiza_est($_SESSION['wrkcodreg'], $qtd_e, $pes_e);
                     $ret = gravar_log(11,"Inclusão de novo produto: " . $des);
-                    $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = 0; $pes = ''; $qtd = 1; $pre = '';  $obs = ''; $cod = ultimo_cod();
+                    $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = $qtd_e; $pes = ''; $qtd = 1; $pre = '';  $obs = ''; $cod = ultimo_cod();
                }
           }
           if ($_SESSION['wrkopereg'] == 2) {
@@ -187,13 +189,17 @@ $(document).ready(function() {
                if ($ret == 0) {
                     $ret = alterar_pro();
                     $ret = processa_mov();
+                    $ret = estoque_ind($_SESSION['wrkcodreg'], $qtd_e, $pes_e);
+                    $ret = atualiza_est($_SESSION['wrkcodreg'], $qtd_e, $pes_e);
                     $ret = gravar_log(12,"Alteração de produto existente: " . $des); $_SESSION['wrkmostel'] = 0;
-                    $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = 0; $pes = ''; $qtd = 1; $pre = '';  $obs = ''; $cod = ultimo_cod();
+                    $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = $qtd_e; $pes = ''; $qtd = 1; $pre = '';  $obs = ''; $cod = ultimo_cod();
                     echo '<script>history.go(-' . $_SESSION['wrknumvol'] . ');</script>'; $_SESSION['wrknumvol'] = 1;
                }
           }
           if ($_SESSION['wrkopereg'] == 3) {
                $ret = excluir_pro();
+               $ret = estoque_ind($_SESSION['wrkcodreg'], $qtd_e, $pes_e);
+               $ret = atualiza_est($_SESSION['wrkcodreg'], $qtd_e, $pes_e);
                $ret = gravar_log(13,"Exclusão de produto existente: " . $des); $_SESSION['wrkmostel'] = 0;
                $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = 0; $pes = ''; $qtd = 1; $pre = '';  $obs = ''; $cod = ultimo_cod();
                echo '<script>history.go(-' . $_SESSION['wrknumvol'] . ');</script>'; $_SESSION['wrknumvol'] = 1;
@@ -440,9 +446,8 @@ function ler_produto($cha, &$des, &$sta, &$uni, &$key, &$gru, &$loc, &$pes, &$pr
           $loc = $lin['prolocal'];
           $cli = $lin['procliente'];
           $sui = $lin['prosuite'];
-          $est = $lin['proestoque'];
           $obs = $lin['proobservacao'];
-          $est = number_format($lin['proestoque'], 0, ",", ".");
+          $est = number_format($lin['proestoqueqtd'], 0, ",", ".");
           $pes = number_format($lin['propeso'], 4, ",", ".");
           $qtd = number_format($lin['proquantidade'], 0, ",", ".");
           $pre = number_format($lin['propreco'], 2, ",", ".");
@@ -705,7 +710,7 @@ function processa_mov() {
      if ($_REQUEST['pes'] == "" || $_REQUEST['qtd'] == "" || $_REQUEST['pes'] == 0 || $_REQUEST['qtd'] == 0) {
           return 1;
      }     
-     $ret = ler_movto($tra_e, $nro_m, $pes_m, $qtd_m); 
+     $ret = ler_movto($tra_e, $cha_m, $nro_m, $pes_m, $qtd_m); 
      $pes_p = str_replace(".", "", $_REQUEST['pes']); $pes_p = str_replace(",", ".", $pes_p);
      $qtd_p = str_replace(".", "", $_REQUEST['qtd']); $qtd_p = str_replace(",", ".", $qtd_p);
      $pre_p = str_replace(".", "", $_REQUEST['pre']); $pre_p = str_replace(",", ".", $pre_p);
@@ -756,16 +761,31 @@ function processa_mov() {
                print_r($sql);
                echo '<script>alert("Erro na gravação do movimento solicitado !");</script>';
           }     
+     } else if ($nro_m == 1 && $tra_e >= 1) {
+          if ($qtd_m != ! $qtd_p || $pes_m != ! $pes_p) {
+               $sql  = "update tb_movto set ";
+               $sql .= "movpeso = '". $pes_p . "', ";
+               $sql .= "movquantidade = '". $qtd_p . "', ";
+               $sql .= "keyalt = '" . $_SESSION['wrkideusu'] . "', ";
+               $sql .= "datalt = '" . date("Y/m/d H:i:s") . "' ";
+               $sql .= "where idmovto = " . $cha_m;
+               $ret = comando_tab($sql, $nro, $ult, $men);
+               if ($ret == false) {
+                    print_r($sql);
+                    echo '<script>alert("Erro na regravação do movimento solicitado !");</script>';
+               }
+          }
      }
      return $ret;
 }
 
-function ler_movto(&$tra, &$nro, &$pes, &$qtd) {
-     $ret = 0; $qtd = 0; $nro = 0; $pes = 0; $tra = 0;
+function ler_movto(&$tra, &$cha, &$nro, &$pes, &$qtd) {
+     $ret = 0; $cha = 0; $qtd = 0; $nro = 0; $pes = 0; $tra = 0;
      include_once "dados.php";
      $com = "Select idmovto, movproduto, movtipo, movpeso, movquantidade from tb_movto where movempresa = " . $_SESSION['wrkcodemp'] . " and movtipo = 0 and movproduto = " . $_SESSION['wrkcodreg'];
      $ret = carrega_tab($com, $reg);
      foreach ($reg as $lin) {
+          $cha = $lin['idmovto'];
           $pes = $lin['movpeso'];
           $qtd = $lin['movquantidade'];
           $nro = $nro + 1;

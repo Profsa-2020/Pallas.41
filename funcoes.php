@@ -418,4 +418,39 @@ function ler_dolar($dt1 = "", $dt2 = "", &$tx1, &$tx2) {
     }
     return $ret;
 }
+
+function estoque_ind($cod, &$qtd, &$pes) {
+    $ret = 0; $qtd = 0; $pes = 0;
+    include_once "dados.php";
+    $com = "Select movtipo, Sum(movpeso) as totpeso, Sum(movquantidade) as totquantidade from tb_movto where movempresa = " . $_SESSION['wrkcodemp'] . " and movproduto = " . $cod . " group by movtipo";
+    $ret = carrega_tab($com, $reg);
+    foreach ($reg as $lin) {
+        if ($lin['movtipo'] == 0) { $pes = $pes + $lin['totpeso']; }
+        if ($lin['movtipo'] == 1) { $pes = $pes + $lin['totpeso']; }
+        if ($lin['movtipo'] == 2) { $pes = $pes -  $lin['totpeso']; }
+        if ($lin['movtipo'] == 0) { $qtd = $qtd + $lin['totquantidade']; }
+        if ($lin['movtipo'] == 1) { $qtd = $qtd + $lin['totquantidade']; }
+        if ($lin['movtipo'] == 2) { $qtd = $qtd -  $lin['totquantidade']; }
+    }
+    return $ret;
+}
+
+function atualiza_est($cod, $qtd, $pes) {
+    $ret = 0; 
+    include_once "dados.php";
+    $sql  = "update tb_produto set ";
+    $sql .= "proestoquepes = '". $pes . "', ";
+    $sql .= "proestoqueqtd = '". $qtd . "', ";
+    $sql .= "keyalt = '" . $_SESSION['wrkideusu'] . "', ";
+    $sql .= "datalt = '" . date("Y/m/d H:i:s") . "' ";
+    $sql .= "where idproduto = " . $cod;
+    $ret = comando_tab($sql, $nro, $ult, $men);
+    if ($ret == false) {
+         print_r($sql);
+         echo '<script>alert("Erro na regravação do produto solicitado !");</script>';
+    }
+
+    return $ret;
+}
+
 ?>
