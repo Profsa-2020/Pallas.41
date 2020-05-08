@@ -43,6 +43,7 @@
 
 <script>
 $(function() {
+     $("#dup").mask("00");
      $("#cpf").mask("000.000.000-00");
      $("#qd").mask("999.999", { reverse: true });
      $("#pre").mask("999.999,99", { reverse: true });
@@ -142,6 +143,7 @@ $(document).ready(function() {
      if (isset($_REQUEST['cod']) == true) { $_SESSION['wrkcodreg'] = $_REQUEST['cod']; }
      $cod = (isset($_REQUEST['cod']) == false ? 0  : $_REQUEST['cod']);
      $sta = (isset($_REQUEST['sta']) == false ? 0  : $_REQUEST['sta']);
+     $dup = (isset($_REQUEST['dup']) == false ? 1  : $_REQUEST['dup']);
      $uni = (isset($_REQUEST['uni']) == false ? 'PÇ'  : $_REQUEST['uni']);
      $key = (isset($_REQUEST['key']) == false ? '' : $_REQUEST['key']);
      $gru = (isset($_REQUEST['gru']) == false ? '' : $_REQUEST['gru']);
@@ -176,12 +178,15 @@ $(document).ready(function() {
                $_SESSION['wrkcodreg'] = ultimo_cod();               
                $ret = consiste_pro();
                if ($ret == 0) {
-                    $ret = incluir_pro();
-                    $ret = processa_mov();
-                    $ret = estoque_ind($_SESSION['wrkcodreg'], $qtd_e, $pes_e);
-                    $ret = atualiza_est($_SESSION['wrkcodreg'], $qtd_e, $pes_e);
-                    $ret = gravar_log(11,"Inclusão de novo produto: " . $des);
-                    $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = $qtd_e; $pes = ''; $qtd = 1; $pre = '';  $obs = ''; $cod = ultimo_cod();
+                    if ($dup == "") { $dup = 1; }
+                    for ($ind = 0; $ind < $dup; $ind++) {
+                         $ret = incluir_pro($ind);
+                         $ret = processa_mov();
+                         $ret = estoque_ind($_SESSION['wrkcodreg'], $qtd_e, $pes_e);
+                         $ret = atualiza_est($_SESSION['wrkcodreg'], $qtd_e, $pes_e);
+                    }
+                    $ret = gravar_log(11,"Inclusão de novo(s) produto(s) [ " . $dup . "] : " . $des);
+                    $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $est = $qtd_e; $pes = ''; $qtd = 1; $dup = 1; $pre = '';  $obs = ''; $cod = ultimo_cod();
                }
           }
           if ($_SESSION['wrkopereg'] == 2) {
@@ -192,7 +197,7 @@ $(document).ready(function() {
                     $ret = estoque_ind($_SESSION['wrkcodreg'], $qtd_e, $pes_e);
                     $ret = atualiza_est($_SESSION['wrkcodreg'], $qtd_e, $pes_e);
                     $ret = gravar_log(12,"Alteração de produto existente: " . $des); $_SESSION['wrkmostel'] = 0;
-                    $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = $qtd_e; $pes = ''; $qtd = 1; $pre = '';  $obs = ''; $cod = ultimo_cod();
+                    $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = $qtd_e; $pes = ''; $qtd = 1; $dup = 1; $pre = '';  $obs = ''; $cod = ultimo_cod();
                     echo '<script>history.go(-' . $_SESSION['wrknumvol'] . ');</script>'; $_SESSION['wrknumvol'] = 1;
                }
           }
@@ -201,7 +206,7 @@ $(document).ready(function() {
                $ret = estoque_ind($_SESSION['wrkcodreg'], $qtd_e, $pes_e);
                $ret = atualiza_est($_SESSION['wrkcodreg'], $qtd_e, $pes_e);
                $ret = gravar_log(13,"Exclusão de produto existente: " . $des); $_SESSION['wrkmostel'] = 0;
-               $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = 0; $pes = ''; $qtd = 1; $pre = '';  $obs = ''; $cod = ultimo_cod();
+               $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = 0; $pes = ''; $qtd = 1; $dup = 1; $pre = '';  $obs = ''; $cod = ultimo_cod();
                echo '<script>history.go(-' . $_SESSION['wrknumvol'] . ');</script>'; $_SESSION['wrknumvol'] = 1;
           }
      }
@@ -254,6 +259,25 @@ $(document).ready(function() {
                          </div>
                     </div>
                     <div class="row">
+                         <div class="col-md-5"></div>
+                         <div class="col-md-2">
+                              <label>Suite</label>
+                              <input type="text" class="form-control text-center" maxlength="15" id="sui" name="sui"
+                                   value="<?php echo $sui ?>" />
+                         </div>
+                         <div class="col-md-5"></div>
+                    </div>
+                    <div class="row">
+                         <div class="col-md-2"></div>
+                         <div class="col-md-8">
+                              <label>Cliente (proprietário) </label>
+                              <select id="cli" name="cli" class="form-control">
+                                   <?php $ret = carrega_cli($cli); ?>
+                              </select>
+                         </div>
+                         <div class="col-md-2"></div>
+                    </div>
+                    <div class="row">
                          <div class="col-md-10">
                               <label>Descrição do Produto</label>
                               <input type="text" class="form-control" maxlength="100" id="des" name="des"
@@ -264,26 +288,6 @@ $(document).ready(function() {
                               <input type="text" class="form-control text-center" maxlength="5" id="uni" name="uni"
                                    value="<?php echo $uni; ?>" />
                          </div>
-                    </div>
-                    <div class="row">
-                         <div class="col-md-5"></div>
-                         <div class="col-md-2">
-                              <label>Suite</label>
-                              <input type="text" class="form-control text-center" maxlength="15" id="sui" name="sui"
-                                   value="<?php echo $sui ?>" />
-                         </div>
-                         <div class="col-md-5"></div>
-                    </div>
-
-                    <div class="row">
-                         <div class="col-md-2"></div>
-                         <div class="col-md-8">
-                              <label>Cliente (proprietário) </label>
-                              <select id="cli" name="cli" class="form-control">
-                                   <?php $ret = carrega_cli($cli); ?>
-                              </select>
-                         </div>
-                         <div class="col-md-2"></div>
                     </div>
                     <div class="row">
                          <div class="col-md-6">
@@ -345,8 +349,26 @@ $(document).ready(function() {
                                    title="Abre janela para carregar anexos para o produto, imagens e videos."><i
                                         class="fa fa-upload fa-3x" aria-hidden="true"></i></button>
                          </div>
-
                     </div>
+
+                    <?php if ($_SESSION['wrkopereg'] == 1) { ?>
+                         <br />
+                         <div class="row qua-6">
+                              <div class="col-md-2"></div>
+                              <div class="col-md-3 text-right">
+                                   <span>Duplicar  : </span>
+                              </div>
+                              <div class="col-md-2 text-center">
+                                   <input type="text" class="form-control text-center" maxlength="2" id="dup" name="dup"
+                                        value="<?php echo $dup ?>" />
+                              </div>
+                              <div class="col-md-3 text-left">
+                                   <span>vez(es)</span>
+                              </div>
+                              <div class="col-md-2"></div>
+                         </div>
+                    <?php } ?>
+
                     <br />
                     <div class="row">
                          <div class="col-md-12 text-center">
@@ -475,10 +497,18 @@ function ler_produto($cha, &$des, &$sta, &$uni, &$key, &$gru, &$loc, &$pes, &$pr
           echo '<script>alert("Cliente proprietário do produto informado não pode estar em branco");</script>';
           return 1;
      }
+     if (trim($_REQUEST['dup']) == "" || trim($_REQUEST['dup']) == 0) {
+          echo '<script>alert("Número de vezes a duplicar não pode estar em branco");</script>';
+          return 1;
+     }
+     if (trim($_REQUEST['dup']) < 1 || trim($_REQUEST['dup']) > 25) {
+          echo '<script>alert("Número de vezes a duplicar o produto deve estar entre 01 e 25");</script>';
+          return 1;
+     }
      return $sta;
 }
 
-function incluir_pro() {
+function incluir_pro($ind) {
      $ret = 0;
      include_once "dados.php";
      $pes = str_replace(".", "", $_REQUEST['pes']); $pes = str_replace(",", ".", $pes);
@@ -519,7 +549,9 @@ function incluir_pro() {
      $ret = comando_tab($sql, $nro, $ult, $men);
      $_SESSION['wrkcodreg'] = $ult;
      if ($ret == true) {
-          echo '<script>alert("Registro incluído no sistema com Sucesso !");</script>';
+          if (($ind + 1) == $_REQUEST['dup']) {
+               echo '<script>alert("Registro(s) [' . ($ind + 1) . '] incluído(s) no sistema com Sucesso !");</script>';
+          }
      }else{
           print_r($sql);
           echo '<script>alert("Erro na gravação do registro solicitado !");</script>';

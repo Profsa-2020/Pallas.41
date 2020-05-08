@@ -123,8 +123,14 @@
 
  .qua-5 {
      border: 0.5px solid rgb(126, 126, 128);
- }
- 
+}
+
+.qua-6 span,  .qua-6 input[type=text] {
+     color: #2008fc;
+     font-size: 20px;
+     font-weight: bold;
+}
+
 .tab-1 {
      font-size: 12px;
      overflow: hidden;

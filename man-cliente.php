@@ -246,7 +246,7 @@ $(document).ready(function() {
      $cpf = (isset($_REQUEST['cpf']) == false ? ''  : $_REQUEST['cpf']);
      $reg = (isset($_REQUEST['reg']) == false ? '' : $_REQUEST['reg']);
      $sen = (isset($_REQUEST['sen']) == false ? '' : $_REQUEST['sen']);
-     $sui = (isset($_REQUEST['sui']) == false ? '' : $_REQUEST['sui']);
+     $sui = (isset($_REQUEST['sui']) == false ? rand(1000, 9999) : $_REQUEST['sui']);
      $ape = (isset($_REQUEST['ape']) == false ? '' : str_replace("'", "´", $_REQUEST['ape']));
      $nom = (isset($_REQUEST['nom']) == false ? '' : str_replace("'", "´", $_REQUEST['nom']));
      $obs = (isset($_REQUEST['obs']) == false ? '' : str_replace("'", "´", $_REQUEST['obs']));
@@ -388,7 +388,7 @@ $(document).ready(function() {
                          <div class="col-md-3"></div>
                          <div class="col-md-2">
                               <label>Suite</label>
-                              <input type="text" class="form-control" maxlength="15" id="sui" name="sui"
+                              <input type="text" class="form-control text-center" maxlength="15" id="sui" name="sui"
                                    value="<?php echo $sui; ?>" required />
                          </div>
                          <div class="col-md-3"></div>

@@ -59,9 +59,12 @@ $(function() {
 
 $(document).ready(function() {
      $("#sui").blur(function() {
+          var tip = 0;
           var cli = $('#cli').val();
           var sui = $('#sui').val();
+          var pro = $('#pro').val();
           $.getJSON("carrega-sui.php", {
+                    tip: tip,
                     cli: cli,
                     sui: sui
                })
@@ -76,6 +79,23 @@ $(document).ready(function() {
                     console.log(data);
                     alert("Erro ocorrido no processamento de suite para o cliente");
                });
+
+          $.getJSON("carrega-pro.php", {
+                    cli: cli,
+                    pro: pro
+               })
+               .done(function(data) {
+                    if (data.men != "") {
+                         alert(data.men);
+                    }
+                    if (data.txt != "") {
+                         $('#pro').html(data.txt);
+                    }
+               }).fail(function(data) {
+                    console.log(data);
+                    alert("Erro ocorrido no processamento de produtos do cliente");
+               });
+
      });
 
      $("#tra").change(function() {
@@ -106,33 +126,74 @@ $(document).ready(function() {
                });
      });
 
-     $("#qtd").change(function() {
+     $("#qtd").blur(function() {
           var ret = calculo_qtd();
+          var pro = $('#pro').val();
+          var pre = $('#pre').val();
+          var pes = $('#pes').val();
+          var qtd = $('#qtd').val();
+          $.getJSON("calculo-pes.php", {
+                    pro: pro,
+                    qtd: qtd,
+                    pes: pes,
+                    pre: pre
+               })
+               .done(function(data) {
+                    if (data.men != "") {
+                         alert(data.men);
+                    }
+                    if (data.pes != "") {
+                         $('#pes').val(data.pes);
+                    }
+               }).fail(function(data) {
+                    console.log(data);
+                    alert("Erro ocorrido no calculo no peso do produto");
+               });
+
      });
 
-     $("#pes").change(function() {
+     $("#pes").blur(function() {
           var ret = calculo_qtd();
      });
 
 
      $("#cli").change(function() {
+          var tip = 1;
           var cli = $('#cli').val();
           var sui = $('#sui').val();
+          var pro = $('#pro').val();
           $.getJSON("carrega-sui.php", {
+                    tip: tip,
                     cli: cli,
                     sui: sui
                })
                .done(function(data) {
                     if (data.men != "") {
                          alert(data.men);
-                    }
-                    if (data.sui != "") {
+                    } else {
                          $('#sui').val(data.sui);
                     }
                }).fail(function(data) {
                     console.log(data);
                     alert("Erro ocorrido no processamento de suite do cliente");
                });
+
+          $.getJSON("carrega-pro.php", {
+                    cli: cli,
+                    pro: pro
+               })
+               .done(function(data) {
+                    if (data.men != "") {
+                         alert(data.men);
+                    }
+                    if (data.txt != "") {
+                         $('#pro').html(data.txt);
+                    }
+               }).fail(function(data) {
+                    console.log(data);
+                    alert("Erro ocorrido no processamento de produtos do cliente");
+               });
+
      });
 
      $(window).scroll(function() {
@@ -245,7 +306,7 @@ function calculo_qtd() {
                     $ret = estoque_ind($pro, $qtd_e, $pes_e);
                     $ret = atualiza_est($pro, $qtd_e, $pes_e);
                     $ret = gravar_log(11,"Inclusão de novo movimento: " . $dat . " " . $hor);
-                    $sta = 0; $dat = ''; $hor = ''; $tip = ''; $qtd = ''; $cli = 0; $tra = 0; $pro = 0; $pre = ''; $obs = ''; $cod = ultimo_cod();
+                    $sta = 0; $dat = ''; $hor = ''; $tip = ''; $qtd = ''; $pes = ''; $cli = 0; $tra = 0; $pro = 0; $pre = ''; $obs = ''; $cod = ultimo_cod();
                }
           }
           if ($_SESSION['wrkopereg'] == 2) {
@@ -255,7 +316,7 @@ function calculo_qtd() {
                     $ret = estoque_ind($pro, $qtd_e, $pes_e);
                     $ret = atualiza_est($pro, $qtd_e, $pes_e);
                     $ret = gravar_log(12,"Alteração de movimento existente: " . $dat . " " . $hor); $_SESSION['wrkmostel'] = 0;
-                    $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = 0; $pes = ''; $pre = '';  $obs = ''; $cod = ultimo_cod();
+                    $sta = 0; $dat = ''; $hor = ''; $tip = ''; $qtd = ''; $pes = ''; $cli = 0; $tra = 0; $pro = 0; $pre = ''; $obs = ''; $cod = ultimo_cod();
                     echo '<script>history.go(-' . $_SESSION['wrknumvol'] . ');</script>'; $_SESSION['wrknumvol'] = 1;
                }
           }
@@ -263,8 +324,8 @@ function calculo_qtd() {
                $ret = excluir_mov();
                $ret = estoque_ind($pro, $qtd_e, $pes_e);
                $ret = atualiza_est($pro, $qtd_e, $pes_e);
-          $ret = gravar_log(13,"Exclusão de movimento existente: " . $dat . " " . $hor); $_SESSION['wrkmostel'] = 0;
-               $sta = 0; $des = ''; $uni = ''; $key = ''; $gru = 0; $loc = 0; $cli = 0; $sui = ''; $est = 0; $pes = ''; $pre = '';  $obs = ''; $cod = ultimo_cod();
+               $ret = gravar_log(13,"Exclusão de movimento existente: " . $dat . " " . $hor); $_SESSION['wrkmostel'] = 0;
+               $sta = 0; $dat = ''; $hor = ''; $tip = ''; $qtd = ''; $pes = ''; $cli = 0; $tra = 0; $pro = 0; $pre = ''; $obs = ''; $cod = ultimo_cod();
                echo '<script>history.go(-' . $_SESSION['wrknumvol'] . ');</script>'; $_SESSION['wrknumvol'] = 1;
           }
      }
@@ -366,7 +427,7 @@ function calculo_qtd() {
                          <div class="col-md-8">
                               <label>Produto Desejado</label>
                               <select id="pro" name="pro" class="form-control">
-                                   <?php $ret = carrega_pro($pro); ?>
+                                   <?php $ret = carrega_pro($cli, $pro); ?>
                               </select>
                          </div>
                          <div class="col-md-2"></div>
@@ -471,13 +532,13 @@ function carrega_cli($cli) {
      return $sta;
 }
 
-function carrega_pro($pro) {
+function carrega_pro($cli, $pro) {
      $sta = 0;
      include_once "dados.php";    
      if ($pro == 0) {
           echo '<option value="0" selected="selected">Selecione produto desejado ...</option>';
      }
-     $com = "Select idproduto, prodescricao from tb_produto where prostatus = 0  and proempresa = " . $_SESSION['wrkcodemp'] . " order by prodescricao";
+     $com = "Select idproduto, prodescricao from tb_produto where prostatus = 0  and proempresa = " . $_SESSION['wrkcodemp'] . " and procliente = " . $cli . " order by prodescricao";
      $nro = carrega_tab($com, $reg);
      foreach ($reg as $lin) {
           if ($lin['idproduto'] != $pro) {
