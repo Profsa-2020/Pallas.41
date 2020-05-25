@@ -445,7 +445,7 @@ function consiste_emp() {
 
 function incluir_emp() {
      $ret = 0;
-     include "dados.php";
+     include_once "dados.php";
      $sql  = "insert into tb_empresa (";
      $sql .= "empcnpj, ";
      $sql .= "empstatus, ";

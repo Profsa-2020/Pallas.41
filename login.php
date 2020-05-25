@@ -106,7 +106,7 @@
                     <br /><br />
                     <div class="row">
                          <a href="http://www.mylogbox.com/">
-                              <img class="img-fluid" src="img/logo-05.jpg" alt="Logotipo da empresa MyLogBox"
+                              <img class="ima-2" src="img/logo-05.jpg" alt="Logotipo da empresa MyLogBox"
                                    title="Acesso ao site principal da empresa MyLogBox" />
                          </a>
                     </div>

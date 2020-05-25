@@ -70,7 +70,11 @@
 
 .ima-1 {
      animation-duration: 5s;
- }
+}
+
+.ima-2 {
+     width: 80%;
+} 
 
 .qua-0 {
      overflow: hidden;
